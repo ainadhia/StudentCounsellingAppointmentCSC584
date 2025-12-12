@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Mental Wellness Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8f7fc 0%, #f0ebfa 100%);
+            padding: 20px;
+        }
+
+        /* Auth Container */
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(93, 46, 140, 0.15);
+            overflow: hidden;
+        }
+
+        /* Form Header */
+        .form-header {
+            background: linear-gradient(135deg, #51245C 0%, #8a4ec7 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .form-header h1 {
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .form-header p {
+            font-size: 1em;
+            opacity: 0.95;
+        }
+
+        /* Form Content */
+        .form-content {
+            padding: 40px;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #5D2E8C;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e6e1f7;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+            background-color: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #A56CD1;
+            box-shadow: 0 0 0 4px rgba(165, 108, 209, 0.1);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #8B7BA6;
+            cursor: pointer;
+            font-size: 1.1em;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        /* Form Options - Simplified */
+        .form-options {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #5D2E8C;
+            font-size: 0.95em;
+        }
+
+        .remember-me input {
+            accent-color: #A56CD1;
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            margin-top: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #A56CD1 0%, #8a4ec7 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(165, 108, 209, 0.3);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0ebfa;
+            color: #8B7BA6;
+        }
+
+        .auth-switch a {
+            color: #A56CD1;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .error-message i {
+            font-size: 1.2em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-content {
+                padding: 30px;
+            }
+            
+            .form-header {
+                padding: 30px 20px;
+            }
+            
+            .form-header h1 {
+                font-size: 2em;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 10px;
+            }
+            
+            .auth-container {
+                border-radius: 15px;
+                max-width: 100%;
+            }
+            
+            .form-content {
+                padding: 25px;
+            }
+            
+            .form-header {
+                padding: 25px 20px;
+            }
+            
+            .form-header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Form Header -->
+        <div class="form-header">
+            <h1>Sign In</h1>
+            <p>Access your mental wellness account</p>
+        </div>
+
+        <!-- Form Content -->
+        <div class="form-content">
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Invalid username or password. Please try again.</span>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required 
+                           placeholder="Enter your username">
+                </div>
+                
+                <div class="form-group password-container">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required 
+                           placeholder="Enter your password">
+                    <button type="button" class="toggle-password" id="togglePassword">
+                        <i class="fas fa-eye-slash"></i>
+                    </button>
+                </div>
+                
+                <div class="form-options">
+                    <div class="remember-me">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        <label for="rememberMe">Remember me</label>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        Sign In
+                    </button>
+                </div>
+                
+                <div class="auth-switch">
+                    Don't have an account?
+                    <a href="register.html">Register here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Password visibility toggle - SIMPLIFIED
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            // Toggle password field type
+            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+            
+            // Toggle icon class
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+        
+        // Demo users for simulation
+        const demoUsers = [
+            { username: 'student123', password: 'password123', role: 'student', name: 'John Doe' },
+            { username: 'counselor456', password: 'password456', role: 'counselor', name: 'Jane Smith' },
+            { username: 'admin', password: 'admin123', role: 'admin', name: 'Admin User' }
+        ];
+        
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
+            
+            // Hide any previous error message
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Validate inputs
+            if (!username || !password) {
+                showError('Please fill in all required fields');
+                return;
+            }
+            
+            // Simulate authentication
+            const user = demoUsers.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                // Successful login
+                alert(`Welcome back, ${user.name}!\n\nRole: ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}\n\nRedirecting to dashboard...`);
+                
+                // Store login info if "Remember me" is checked
+                if (rememberMe) {
+                    localStorage.setItem('rememberedUser', username);
+                }
+                
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            } else {
+                // Failed login
+                showError('Invalid username or password. Please try again.');
+                
+                // Clear password field
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+        });
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.querySelector('span').textContent = message;
+            errorDiv.style.display = 'flex';
+        }
+        
+        // Check for remembered user
+        window.addEventListener('DOMContentLoaded', function() {
+            const rememberedUser = localStorage.getItem('rememberedUser');
+            if (rememberedUser) {
+                document.getElementById('username').value = rememberedUser;
+                document.getElementById('rememberMe').checked = true;
+                document.getElementById('password').focus();
+            }
+        });
+    </script>
+</body>
+</html>
