@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | Mental Wellness Hub</title>
+    <title> Register Account</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Base Styles */
@@ -220,7 +220,12 @@
             font-weight: 600;
             font-size: 1em;
         }
-
+        
+        /* New ID Field Styling */
+        #idFieldGroup {
+            display: none; /* Hidden by default */
+        }
+        
         /* Validation Messages */
         .validation-message {
             font-size: 0.85em;
@@ -338,13 +343,11 @@
 </head>
 <body>
     <div class="auth-container">
-        <!-- Form Header -->
         <div class="form-header">
             <h1>Create Account</h1>
-            <p>Register to access mental wellness services</p>
+            <p>Register to Access Student Counselling Appointment</p>
         </div>
 
-        <!-- Form Content -->
         <div class="form-content">
             <form id="registerForm">
                 <div class="form-row">
@@ -370,7 +373,7 @@
                         <input type="email" id="email" name="email" required 
                                placeholder="your.email@example.com">
                         <div class="validation-message" id="emailValidation">
-                           
+                            
                         </div>
                     </div>
                     
@@ -388,7 +391,6 @@
                 </div>
                 
                 <div class="form-row">
-                    <!-- Password field WITH only ONE eye icon -->
                     <div class="form-group password-container">
                         <label for="password">Password *</label>
                         <input type="password" id="password" name="password" required 
@@ -401,12 +403,11 @@
                         </div>
                     </div>
                     
-                    <!-- Confirm password field -->
                     <div class="form-group password-container">
                         <label for="confirmPassword">Confirm Password *</label>
                         <input type="password" id="confirmPassword" name="confirmPassword" required 
                                placeholder="Re-enter your password">
-                        <button type="button" class="toggle-password" id="togglePassword">
+                        <button type="button" class="toggle-password" id="toggleConfirmPassword">
                             <i class="fas fa-eye-slash"></i>
                         </button>
                         <div class="validation-message" id="confirmPasswordValidation">
@@ -415,7 +416,6 @@
                     </div>
                 </div>
                 
-                <!-- Role Selection -->
                 <div class="role-group">
                     <label>Select Your Role *</label>
                     <div class="role-options">
@@ -431,6 +431,16 @@
                     </div>
                 </div>
                 
+                <div class="form-row" id="idFieldGroup">
+                    <div class="form-group">
+                        <label for="roleId" id="idLabel">Student ID / Counselor ID *</label>
+                        <input type="text" id="roleId" name="roleId" 
+                               placeholder="Enter your unique ID">
+                        <div class="validation-message" id="idValidation">
+                            Required and must be unique.
+                        </div>
+                    </div>
+                </div>
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
                         Create Account
@@ -446,25 +456,65 @@
     </div>
 
     <script>
-        // Password visibility toggle - ONLY ONE EYE ICON
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const icon = this.querySelector('i');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+        // --- CONSTANTS/SETUP ---
+        const takenUsernames = ['admin', 'user123', 'testuser'];
+        // Dummy data for taken IDs for demonstration of uniqueness check
+        const takenIds = ['S1001', 'C9001', 'S1002', 'C9002']; 
+
+        // --- PASSWORD TOGGLES ---
+        function setupPasswordToggle(inputId, toggleId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleButton = document.getElementById(toggleId);
+
+            if (passwordInput && toggleButton) {
+                // Ensure the button is only active if the input exists and has type 'password'
+                if(passwordInput.type === 'password') {
+                    toggleButton.addEventListener('click', function() {
+                        const icon = this.querySelector('i');
+                        
+                        if (passwordInput.type === 'password') {
+                            passwordInput.type = 'text';
+                            icon.classList.remove('fa-eye-slash');
+                            icon.classList.add('fa-eye');
+                        } else {
+                            passwordInput.type = 'password';
+                            icon.classList.remove('fa-eye');
+                            icon.classList.add('fa-eye-slash');
+                        }
+                    });
+                }
             }
-        });
+        }
         
-        // Role selection
+        setupPasswordToggle('password', 'togglePassword');
+        setupPasswordToggle('confirmPassword', 'toggleConfirmPassword');
+
+        // --- ROLE SELECTION AND ID FIELD TOGGLE ---
         const roleOptions = document.querySelectorAll('.role-option');
-        
+        const idFieldGroup = document.getElementById('idFieldGroup');
+        const idLabel = document.getElementById('idLabel');
+        const roleIdInput = document.getElementById('roleId');
+
+        function updateIdFieldVisibility(roleValue) {
+            if (roleValue === 'student') {
+                idLabel.textContent = 'Student ID *';
+                roleIdInput.placeholder = 'e.g., 2022111111';
+                idFieldGroup.style.display = 'flex';
+                roleIdInput.setAttribute('required', 'required');
+            } else if (roleValue === 'counselor') {
+                idLabel.textContent = 'Counselor ID *';
+                roleIdInput.placeholder = 'e.g., C9876';
+                idFieldGroup.style.display = 'flex';
+                roleIdInput.setAttribute('required', 'required');
+            } else {
+                idFieldGroup.style.display = 'none';
+                roleIdInput.removeAttribute('required');
+            }
+            // Clear ID validation message when role changes
+            document.getElementById('idValidation').textContent = 'Required and must be unique.';
+            document.getElementById('idValidation').classList.remove('valid', 'invalid');
+        }
+
         roleOptions.forEach(option => {
             option.addEventListener('click', function() {
                 // Remove selected class from all options
@@ -478,10 +528,13 @@
                 // Check the corresponding radio input
                 const radioInput = this.querySelector('input[type="radio"]');
                 radioInput.checked = true;
+
+                // Update ID field visibility based on selection
+                updateIdFieldVisibility(radioInput.value);
             });
         });
         
-        // Phone number formatting for Malaysia
+        // --- PHONE NUMBER FORMATTING (Malaysia) ---
         document.getElementById('phone').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             
@@ -500,7 +553,134 @@
             e.target.value = value;
         });
         
-        // Form validation
+        // --- VALIDATION FUNCTIONS ---
+        function validateUsername(username) {
+            const validationElement = document.getElementById('usernameValidation');
+            validationElement.classList.remove('valid', 'invalid');
+            
+            if (username.length < 3) {
+                validationElement.textContent = 'Username must be at least 3 characters';
+                validationElement.classList.add('invalid');
+                return false;
+            } else if (takenUsernames.includes(username.toLowerCase())) {
+                validationElement.textContent = 'Username already taken';
+                validationElement.classList.add('invalid');
+                return false;
+            } else {
+                validationElement.textContent = 'Username available';
+                validationElement.classList.add('valid');
+                return true;
+            }
+        }
+
+        function validateEmail(email) {
+            const validationElement = document.getElementById('emailValidation');
+            validationElement.classList.remove('valid', 'invalid');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!emailRegex.test(email)) {
+                validationElement.textContent = 'Please enter a valid email';
+                validationElement.classList.add('invalid');
+                return false;
+            } else {
+                validationElement.textContent = 'Valid email format';
+                validationElement.classList.add('valid');
+                return true;
+            }
+        }
+        
+        function validatePassword(password, confirmPassword) {
+            const pVal = document.getElementById('passwordValidation');
+            const cpVal = document.getElementById('confirmPasswordValidation');
+            pVal.classList.remove('valid', 'invalid');
+            cpVal.classList.remove('valid', 'invalid');
+            
+            let pValid = true;
+            let cpValid = true;
+
+            if (password.length < 8) {
+                pVal.textContent = 'Password must be at least 8 characters';
+                pVal.classList.add('invalid');
+                pValid = false;
+            } else {
+                pVal.textContent = 'Password strength: Good';
+                pVal.classList.add('valid');
+            }
+            
+            // Validation for Confirm Password
+            if (confirmPassword.length > 0) {
+                if (password !== confirmPassword) {
+                    cpVal.textContent = 'Passwords do not match';
+                    cpVal.classList.add('invalid');
+                    cpValid = false;
+                } else if (password.length >= 8) {
+                    cpVal.textContent = 'Passwords match';
+                    cpVal.classList.add('valid');
+                } else {
+                    // If they match but password is too short, still show password length warning
+                    cpVal.textContent = 'Passwords match (Minimum 8 characters needed)';
+                    cpValid = false; 
+                }
+            } else if (password.length >= 8) {
+                // If password is okay, but confirm is empty
+                 cpVal.textContent = 'Re-enter your password'; 
+                 cpValid = false; 
+            } else {
+                cpVal.textContent = 'Passwords must match'; 
+            }
+            
+            return pValid && cpValid;
+        }
+
+        function validateRoleId(roleId) {
+            const validationElement = document.getElementById('idValidation');
+            validationElement.classList.remove('valid', 'invalid');
+            const selectedRole = document.querySelector('input[name="role"]:checked');
+
+            if (!selectedRole) {
+                // Should not happen if the role selection is enforced before ID check
+                return true;
+            }
+
+            if (!roleId || roleId.trim() === '') {
+                validationElement.textContent = 'ID is required.';
+                validationElement.classList.add('invalid');
+                return false;
+            } else if (takenIds.includes(roleId.toUpperCase())) { // Check against dummy taken IDs
+                validationElement.textContent = 'ID already registered.';
+                validationElement.classList.add('invalid');
+                return false;
+            } else {
+                validationElement.textContent = 'ID is unique and valid.';
+                validationElement.classList.add('valid');
+                return true;
+            }
+        }
+        
+        // --- REAL-TIME VALIDATION LISTENERS ---
+        document.getElementById('username').addEventListener('input', function() {
+            validateUsername(this.value);
+        });
+
+        document.getElementById('email').addEventListener('input', function() {
+            validateEmail(this.value);
+        });
+
+        document.getElementById('password').addEventListener('input', function() {
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            validatePassword(this.value, confirmPassword);
+        });
+
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            validatePassword(password, this.value);
+        });
+
+        document.getElementById('roleId').addEventListener('input', function() {
+            validateRoleId(this.value);
+        });
+
+        // --- FORM SUBMISSION ---
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -511,122 +691,52 @@
             const phone = document.getElementById('phone').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const role = document.querySelector('input[name="role"]:checked');
+            const roleElement = document.querySelector('input[name="role"]:checked');
+            const role = roleElement ? roleElement.value : null;
+            const roleId = document.getElementById('roleId').value;
             
             // Validation flags
             let isValid = true;
-            
-            // Username validation
-            if (username.length < 3) {
-                document.getElementById('usernameValidation').textContent = 'Username must be at least 3 characters';
-                document.getElementById('usernameValidation').classList.add('invalid');
+
+            // 1. Mandatory Fields Check
+            if (!fullName) {
+                alert('Please enter your full name.');
                 isValid = false;
-            } else {
-                const takenUsernames = ['admin', 'user123', 'testuser'];
-                if (takenUsernames.includes(username.toLowerCase())) {
-                    document.getElementById('usernameValidation').textContent = 'Username already taken';
-                    document.getElementById('usernameValidation').classList.add('invalid');
-                    isValid = false;
-                } else {
-                    document.getElementById('usernameValidation').textContent = 'Username available';
-                    document.getElementById('usernameValidation').classList.remove('invalid');
-                    document.getElementById('usernameValidation').classList.add('valid');
-                }
             }
-            
-            // Email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                document.getElementById('emailValidation').textContent = 'Please enter a valid email';
-                document.getElementById('emailValidation').classList.add('invalid');
+            if (!role) {
+                alert('Please select a role (Student or Counselor) to proceed.');
                 isValid = false;
-            } else {
-                document.getElementById('emailValidation').textContent = 'Valid email format';
-                document.getElementById('emailValidation').classList.remove('invalid');
-                document.getElementById('emailValidation').classList.add('valid');
             }
+
+            // 2. Format and Uniqueness Checks
+            isValid = validateUsername(username) && isValid;
+            isValid = validateEmail(email) && isValid;
+            isValid = validatePassword(password, confirmPassword) && isValid;
             
-            // Phone validation
+            // Check ID only if a role is selected and overall validation is still true
+            if (role) {
+                isValid = validateRoleId(roleId) && isValid;
+            }
+
+            // 3. Phone validation (Optional but check format if filled)
             if (phone) {
                 const phoneRegex = /^[0-9]{2}-[0-9]{3,4} [0-9]{4}$/;
                 if (!phoneRegex.test(phone)) {
-                    alert('Please enter a valid Malaysian phone number (e.g., 12-345 6789)');
+                    alert('Please enter a valid Malaysian phone number format (e.g., 12-345 6789)');
                     isValid = false;
                 }
-            }
-            
-            // Password validation
-            if (password.length < 8) {
-                document.getElementById('passwordValidation').textContent = 'Password must be at least 8 characters';
-                document.getElementById('passwordValidation').classList.add('invalid');
-                isValid = false;
-            } else {
-                document.getElementById('passwordValidation').textContent = 'Password strength: Good';
-                document.getElementById('passwordValidation').classList.remove('invalid');
-                document.getElementById('passwordValidation').classList.add('valid');
-            }
-            
-            // Password match validation
-            if (password !== confirmPassword) {
-                document.getElementById('confirmPasswordValidation').textContent = 'Passwords do not match';
-                document.getElementById('confirmPasswordValidation').classList.add('invalid');
-                isValid = false;
-            } else if (password.length >= 8) {
-                document.getElementById('confirmPasswordValidation').textContent = 'Passwords match';
-                document.getElementById('confirmPasswordValidation').classList.remove('invalid');
-                document.getElementById('confirmPasswordValidation').classList.add('valid');
-            }
-            
-            // Role selection validation
-            if (!role) {
-                alert('Please select a role (Student or Counselor)');
-                isValid = false;
             }
             
             // If form is valid
             if (isValid) {
-                const fullPhoneNumber = phone ? '+60 ' + phone : '';
+                const fullPhoneNumber = phone ? '+60 ' + phone : 'N/A';
                 
-                alert(`Registration successful!\n\nWelcome ${fullName}!\nRole: ${role.value}\nUsername: ${username}\n\nYou will now be redirected to the login page.`);
+                alert(`Registration successful!\n\nWelcome ${fullName}!\nRole: ${role.charAt(0).toUpperCase() + role.slice(1)}\nRole ID: ${roleId}\nUsername: ${username}\nEmail: ${email}\nPhone: ${fullPhoneNumber}\n\nYou will now be redirected to the login page.`);
                 
+                // Simulate redirection to login page after 2 seconds
                 setTimeout(() => {
                     window.location.href = 'login.html';
                 }, 2000);
-            }
-        });
-        
-        // Real-time validation
-        document.getElementById('username').addEventListener('input', function() {
-            const username = this.value;
-            if (username.length > 0 && username.length < 3) {
-                document.getElementById('usernameValidation').textContent = 'Username must be at least 3 characters';
-                document.getElementById('usernameValidation').classList.add('invalid');
-            } else if (username.length >= 3) {
-                const takenUsernames = ['admin', 'user123', 'testuser'];
-                if (takenUsernames.includes(username.toLowerCase())) {
-                    document.getElementById('usernameValidation').textContent = 'Username already taken';
-                    document.getElementById('usernameValidation').classList.add('invalid');
-                } else {
-                    document.getElementById('usernameValidation').textContent = 'Username available';
-                    document.getElementById('usernameValidation').classList.remove('invalid');
-                    document.getElementById('usernameValidation').classList.add('valid');
-                }
-            }
-        });
-        
-        document.getElementById('confirmPassword').addEventListener('input', function() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = this.value;
-            
-            if (confirmPassword.length > 0) {
-                if (password !== confirmPassword) {
-                    document.getElementById('confirmPasswordValidation').textContent = 'Passwords do not match';
-                    document.getElementById('confirmPasswordValidation').classList.add('invalid');
-                } else {
-                    document.getElementById('confirmPasswordValidation').textContent = 'Passwords match';
-                    document.getElementById('confirmPasswordValidation').classList.remove('invalid');
-                    document.getElementById('confirmPasswordValidation').classList.add('valid');
-                }
             }
         });
     </script>

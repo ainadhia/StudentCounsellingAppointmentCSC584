@@ -91,27 +91,87 @@
         }
 
         .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #8B7BA6;
-            cursor: pointer;
-            font-size: 1.1em;
-            width: 32px;
-            height: 32px;
+        position: absolute;
+        right: 14px;
+        top: 65%; /* Adjusted top position to account for the label margin */
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #8B7BA6;
+        cursor: pointer;
+        font-size: 1.1em;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s;
+        }
+
+        /* Role Selection Styling */
+        .role-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f7fc;
+            border-radius: 10px;
+            border: 2px solid #e6e1f7;
+        }
+
+        .role-group > label { /* Target the main label */
+            display: block;
+            margin-bottom: 15px;
+            color: #5D2E8C;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .role-options {
+            display: flex;
+            gap: 15px;
+        }
+
+        .role-option {
+            flex: 1;
             display: flex;
             align-items: center;
-            justify-content: center;
-            border-radius: 50%;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e6e1f7;
+            border-radius: 8px;
+            cursor: pointer;
             transition: all 0.3s;
+        }
+
+        .role-option:hover {
+            border-color: #CB95E8;
+            transform: translateY(-1px);
+        }
+
+        .role-option.selected {
+            border-color: #A56CD1;
+            background-color: rgba(165, 108, 209, 0.05);
+            box-shadow: 0 4px 12px rgba(203, 149, 232, 0.1);
+        }
+
+        .role-option input[type="radio"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            accent-color: #A56CD1;
+            cursor: pointer;
+        }
+
+        .role-label {
+            color: #5D2E8C;
+            font-weight: 600;
+            font-size: 0.9em;
         }
 
         /* Form Options - Simplified */
         .form-options {
             display: flex;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
         }
@@ -129,6 +189,18 @@
             width: 18px;
             height: 18px;
         }
+        
+        .forgot-password a {
+            color: #A56CD1;
+            text-decoration: none;
+            font-size: 0.95em;
+            font-weight: 600;
+        }
+        
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
 
         /* Form Actions */
         .form-actions {
@@ -146,14 +218,14 @@
             transition: all 0.3s;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #A56CD1 0%, #8a4ec7 100%);
-            color: white;
-        }
-
         .btn-primary:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(165, 108, 209, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #A56CD1 0%, #8a4ec7 100%);
+            color: white;
         }
 
         .auth-switch {
@@ -227,29 +299,48 @@
             .form-header h1 {
                 font-size: 1.8em;
             }
+
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="auth-container">
-        <!-- Form Header -->
         <div class="form-header">
             <h1>Sign In</h1>
             <p>Access your mental wellness account</p>
         </div>
 
-        <!-- Form Content -->
         <div class="form-content">
             <div class="error-message" id="errorMessage">
                 <i class="fas fa-exclamation-circle"></i>
-                <span>Invalid username or password. Please try again.</span>
+                <span>Invalid credentials. Please try again.</span>
             </div>
             
             <form id="loginForm">
+                
+                <div class="role-group">
+                    <label>I am signing in as:</label>
+                    <div class="role-options">
+                        <div class="role-option" id="studentOption">
+                            <input type="radio" id="roleStudent" name="role" value="student">
+                            <span class="role-label">Student</span>
+                        </div>
+                        
+                        <div class="role-option" id="counselorOption">
+                            <input type="radio" id="roleCounselor" name="role" value="counselor">
+                            <span class="role-label">Counselor</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required 
-                           placeholder="Enter your username">
+                    <label for="roleId" id="idLabel">Student ID / Counselor ID</label>
+                    <input type="text" id="roleId" name="roleId" required 
+                           placeholder="Select your role above and enter your ID">
                 </div>
                 
                 <div class="form-group password-container">
@@ -265,6 +356,8 @@
                     <div class="remember-me">
                         <input type="checkbox" id="rememberMe" name="rememberMe">
                         <label for="rememberMe">Remember me</label>
+                    </div>
+                    <div class="forgot-password">
                     </div>
                 </div>
                 
@@ -296,50 +389,118 @@
             icon.classList.toggle('fa-eye-slash');
         });
         
-        // Demo users for simulation
+        // Demo users now use ID for login simulation
+        // The ID field is case-insensitive during lookup (converted to uppercase)
         const demoUsers = [
-            { username: 'student123', password: 'password123', role: 'student', name: 'John Doe' },
-            { username: 'counselor456', password: 'password456', role: 'counselor', name: 'Jane Smith' },
-            { username: 'admin', password: 'admin123', role: 'admin', name: 'Admin User' }
+            // Dummy Data
+            // NOTE: I changed the password for the student to match the counselor for simplicity in this demo:
+            { id: '2025111111', password: 'pass12345', role: 'student', name: 'John Doe' },
+            { id: '2022111111', password: 'pass12345', role: 'counselor', name: 'Jane Smith' },
         ];
         
+        const roleOptions = document.querySelectorAll('.role-option');
+        const roleIdInput = document.getElementById('roleId');
+        const idLabel = document.getElementById('idLabel');
+        const errorMessage = document.getElementById('errorMessage');
+
+        function showError(message) {
+            errorMessage.querySelector('span').textContent = message;
+            errorMessage.style.display = 'flex';
+        }
+
+        function updateIdField(roleValue) {
+            // Remove previous selection highlight
+            roleOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            const selectedOption = document.getElementById(roleValue + 'Option');
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+                document.getElementById('role' + roleValue.charAt(0).toUpperCase() + roleValue.slice(1)).checked = true;
+            }
+
+            roleIdInput.value = ''; // Clear ID field when role changes
+            roleIdInput.focus();
+            
+            if (roleValue === 'student') {
+                idLabel.textContent = 'Student ID';
+                roleIdInput.placeholder = 'Enter your Student ID (e.g., 2025111111)';
+            } else if (roleValue === 'counselor') {
+                idLabel.textContent = 'Counselor ID';
+                roleIdInput.placeholder = 'Enter your Counselor ID (e.g., 2022111111)';
+            } else {
+                idLabel.textContent = 'Student ID / Counselor ID';
+                roleIdInput.placeholder = 'Select your role above and enter your ID';
+            }
+        }
+        
+        // Role selection logic
+        roleOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const radioInput = this.querySelector('input[type="radio"]');
+                updateIdField(radioInput.value);
+            });
+        });
+
         // Form submission
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Get form values
-            const username = document.getElementById('username').value;
+            const roleElement = document.querySelector('input[name="role"]:checked');
+            const role = roleElement ? roleElement.value : null;
+            const roleId = document.getElementById('roleId').value.toUpperCase().trim(); 
             const password = document.getElementById('password').value;
             const rememberMe = document.getElementById('rememberMe').checked;
             
             // Hide any previous error message
-            document.getElementById('errorMessage').style.display = 'none';
+            errorMessage.style.display = 'none';
             
-            // Validate inputs
-            if (!username || !password) {
-                showError('Please fill in all required fields');
+            // 1. Validate mandatory fields
+            if (!role) {
+                showError('Please select your role (Student or Counselor)');
+                return;
+            }
+
+            if (!roleId || !password) {
+                showError('Please enter your ID and password.');
                 return;
             }
             
-            // Simulate authentication
-            const user = demoUsers.find(u => u.username === username && u.password === password);
+            // 2. Simulate authentication: Find a user that matches ID, Password, AND Role
+            const user = demoUsers.find(u => 
+                u.id.toUpperCase() === roleId && 
+                u.password === password &&
+                u.role === role
+            );
             
             if (user) {
                 // Successful login
-                alert(`Welcome back, ${user.name}!\n\nRole: ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}\n\nRedirecting to dashboard...`);
+                const capitalizedRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+                alert(`Welcome back, ${user.name}!\n\nRole: ${capitalizedRole}\nID: ${user.id}\n\nRedirecting to dashboard...`);
                 
                 // Store login info if "Remember me" is checked
                 if (rememberMe) {
-                    localStorage.setItem('rememberedUser', username);
+                    localStorage.setItem('rememberedRole', user.role);
+                    localStorage.setItem('rememberedId', user.id);
+                } else {
+                    localStorage.removeItem('rememberedRole');
+                    localStorage.removeItem('rememberedId');
                 }
                 
-                // Redirect to dashboard
+                // 3. CONDITIONAL REDIRECTION based on user role
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    if (user.role === 'student') {
+                        // Redirect to the student dashboard
+                        window.location.href = 'student-dashboard.html'; 
+                    } else if (user.role === 'counselor') {
+                        // Redirect to the counselor dashboard
+                        window.location.href = 'counselorDashboard.html';
+                    }
                 }, 1500);
+
             } else {
                 // Failed login
-                showError('Invalid username or password. Please try again.');
+                showError('Invalid ID, password, or role selection. Please check your details.');
                 
                 // Clear password field
                 document.getElementById('password').value = '';
@@ -347,18 +508,19 @@
             }
         });
         
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.querySelector('span').textContent = message;
-            errorDiv.style.display = 'flex';
-        }
-        
         // Check for remembered user
         window.addEventListener('DOMContentLoaded', function() {
-            const rememberedUser = localStorage.getItem('rememberedUser');
-            if (rememberedUser) {
-                document.getElementById('username').value = rememberedUser;
+            const rememberedRole = localStorage.getItem('rememberedRole');
+            const rememberedId = localStorage.getItem('rememberedId');
+
+            if (rememberedRole && rememberedId) {
+                // Set the role selection and update the ID field
+                updateIdField(rememberedRole);
+
+                // Populate the ID field and check the remember me box
+                document.getElementById('roleId').value = rememberedId;
                 document.getElementById('rememberMe').checked = true;
+                
                 document.getElementById('password').focus();
             }
         });
