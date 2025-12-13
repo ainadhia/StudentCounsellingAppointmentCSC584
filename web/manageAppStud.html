@@ -601,7 +601,6 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar Navigation -->
     <div class="sidebar">
         <div class="sidebar-header">
             <div class="user-info">
@@ -622,9 +621,7 @@
         </ul>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
-        <!-- Header -->
         <div class="main-header">
             <div>
                 <h1>Upcoming Appointment</h1>
@@ -633,15 +630,12 @@
             <div class="header-date" id="currentDate"></div>
         </div>
 
-        <!-- Appointment Detail Card -->
         <div class="appointment-detail-container" id="appointmentDetail">
-            <!-- Appointment Header with ID and Status -->
             <div class="appointment-header">
                 <div class="appointment-id-badge" id="appointmentId">APT-2023-006</div>
                 <div class="appointment-status status-booked" id="appointmentStatus">BOOKED</div>
             </div>
             
-            <!-- Appointment Details Grid (Simplified) -->
             <div class="details-grid">
                 <div class="detail-card">
                     <h3><i class="fas fa-info-circle"></i> Student Information</h3>
@@ -677,7 +671,6 @@
                 
             </div>
             
-            <!-- Description Section -->
             <div class="description-section">
                 <h3><i class="fas fa-align-left"></i> Appointment Description</h3>
                 <div class="description-text" id="appointmentDescription">
@@ -685,7 +678,6 @@
                 </div>
             </div>
             
-            <!-- Notes Section (if any) -->
             <div class="notes-section" id="notesSection" style="display: none;">
                 <h3><i class="fas fa-sticky-note"></i> Notes</h3>
                 <div class="notes-text" id="counselorNotes">
@@ -693,7 +685,6 @@
                 </div>
             </div>
             
-            <!-- Action Buttons -->
             <div class="action-buttons">
                 <button class="btn btn-update" id="updateButton">
                     <i class="fas fa-edit"></i> Update Appointment
@@ -705,7 +696,6 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal">
             <div class="modal-header">
@@ -723,7 +713,6 @@
         </div>
     </div>
 
-    <!-- Update Appointment Modal -->
     <div class="modal-overlay" id="updateModal">
         <div class="modal">
             <div class="modal-header">
@@ -753,16 +742,16 @@
                         <label for="updateDescription">Description</label>
                         <textarea id="updateDescription" class="form-control" rows="4" required>Review of current academic standing, GPA analysis, and planning for improving grades in challenging courses. This session will focus on identifying areas for improvement and creating a structured study plan for the upcoming semester. We'll also discuss strategies for managing coursework load and balancing academic responsibilities with extracurricular activities.</textarea>
                     </div>
+
+                    <div class="modal-buttons">
+                        <button type="button" class="btn-cancel" id="cancelUpdate">Cancel</button>
+                        <button type="submit" class="btn-update">Update Appointment</button>
+                    </div>
                 </form>
-            </div>
-            <div class="modal-buttons">
-                <button class="btn-cancel" id="cancelUpdate">Cancel</button>
-                <button class="btn-update" id="confirmUpdate">Update Appointment</button>
             </div>
         </div>
     </div>
 
-    <!-- Success Modal -->
     <div class="modal-overlay" id="successModal">
         <div class="modal">
             <div class="modal-header">
@@ -888,7 +877,6 @@
             
             // Set the time slot
             const timeSelect = document.getElementById('updateTime');
-            const timeValue = appointment.time.replace(' AM', '').replace(' PM', '').replace(' ', '');
             for (let i = 0; i < timeSelect.options.length; i++) {
                 if (timeSelect.options[i].text.includes(appointment.time.substring(0, 5))) {
                     timeSelect.selectedIndex = i;
@@ -937,6 +925,7 @@
             else if (timeSlot === '14:00-15:00') formattedTime = '02:00 PM - 03:00 PM';
             else if (timeSlot === '15:30-16:30') formattedTime = '03:30 PM - 04:30 PM';
             else if (timeSlot === '16:30-17:30') formattedTime = '04:30 PM - 05:30 PM';
+            else formattedTime = timeSlot; // Fallback
             
             // Update the displayed values
             document.getElementById('appointmentDate').textContent = formattedDate;
@@ -945,7 +934,8 @@
             
             // In a real application, you would send a PUT request to your API here
             console.log(`Updating appointment: ${appointmentId}`);
-            console.log(`New date: ${formattedDate}, New time: ${formattedTime}, New type: ${appointmentType}`);
+            // FIXED: Removed ${appointmentType} which was causing the error
+            console.log(`New date: ${formattedDate}, New time: ${formattedTime}`);
             
             // Show success message
             document.getElementById('successTitle').textContent = 'Appointment Updated';
@@ -970,9 +960,12 @@
                 });
             });
             
-            // Highlight the History menu item
-            const historyMenuItem = document.querySelector('.sidebar-menu li:nth-child(5)');
-            historyMenuItem.classList.add('active');
+            // Highlight the Manage Appointment menu item
+            const manageMenuItem = document.querySelector('.sidebar-menu li:nth-child(3)');
+            if (manageMenuItem) {
+                menuItems.forEach(i => i.classList.remove('active'));
+                manageMenuItem.classList.add('active');
+            }
             
             // Update button functionality
             document.getElementById('updateButton').addEventListener('click', function() {
@@ -1009,8 +1002,11 @@
             // Confirm delete
             document.getElementById('confirmDelete').addEventListener('click', deleteAppointment);
             
-            // Confirm update
-            document.getElementById('confirmUpdate').addEventListener('click', updateAppointment);
+            // FIXED: Handling Update Form Submission
+            document.getElementById('updateForm').addEventListener('submit', function(e) {
+                e.preventDefault(); // Stop page reload
+                updateAppointment(); // Run logic
+            });
             
             // Close success modal
             document.getElementById('closeSuccess').addEventListener('click', function() {
@@ -1025,12 +1021,6 @@
                         this.style.display = 'none';
                     }
                 });
-            });
-            
-            // Prevent form submission
-            document.getElementById('updateForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                updateAppointment();
             });
         });
     </script>
