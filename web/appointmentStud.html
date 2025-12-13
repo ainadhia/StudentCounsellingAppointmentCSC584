@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Appointment Booking System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f8f7fc;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: #51245C;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            box-shadow: 4px 0 15px rgba(203, 149, 232, 0.2);
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            padding: 15px 0;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #a56cd1 0%, #8a4ec7 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+            font-size: 2.2em;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .user-info p {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.3em;
+            color: white;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info small {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        /* Sidebar Menu */
+        .sidebar-menu {
+            list-style: none;
+            padding: 25px 0;
+        }
+
+        .sidebar-menu li {
+            margin: 5px 0;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 16px 30px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            font-size: 1.1em;
+        }
+
+        /* Menu icons */
+        .sidebar-menu li a i {
+            margin-right: 15px;
+            font-size: 1.3em;
+            width: 24px;
+            text-align: center;
+            color: white;
+            opacity: 0.95;
+        }
+
+        /* Custom icon styling */
+        .menu-icon {
+            font-size: 1.5em;
+            margin-right: 15px;
+            width: 24px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .sidebar-menu li.active a {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-left-color: #FFB347;
+            font-weight: 500;
+        }
+
+        .sidebar-menu li a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding-left: 35px;
+        }
+
+        /* For the logout item */
+        .sidebar-menu li.logout {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 20px;
+        }
+
+        .sidebar-menu li.logout a {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .sidebar-menu li.logout a:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px 40px;
+            min-height: 100vh;
+        }
+
+        /* Main Header */
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #e6e1f7;
+        }
+
+        .main-header h1 {
+            color: #5D2E8C;
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .welcome-subtitle {
+            color: #8B7BA6;
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+
+        .header-date {
+            background: linear-gradient(135deg, #CB95E8 0%, #A56CD1 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95em;
+            box-shadow: 0 4px 12px rgba(203, 149, 232, 0.3);
+        }
+
+        /* ===== CARDS ===== */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 6px 20px rgba(203, 149, 232, 0.15);
+            transition: all 0.3s ease;
+            border: 1px solid #f0ebfa;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(203, 149, 232, 0.25);
+            border-color: #CB95E8;
+        }
+
+        .card-icon {
+            font-size: 2.8em;
+            margin-right: 20px;
+            color: #A56CD1;
+            opacity: 0.9;
+        }
+
+        .card-content {
+            flex: 1;
+        }
+
+        .card-content h3 {
+            color: #8B7BA6;
+            font-size: 1em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .card-number {
+            font-size: 2.8em;
+            font-weight: 700;
+            color: #5D2E8C;
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+
+        .card-detail {
+            color: #A99AC2;
+            font-size: 0.9em;
+            font-weight: 400;
+        }
+
+        /* ===== CONTENT SECTIONS ===== */
+        .content-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 6px 20px rgba(203, 149, 232, 0.15);
+            border: 1px solid #f0ebfa;
+        }
+
+        .content-section:hover {
+            border-color: #CB95E8;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            color: #5D2E8C;
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+
+        .view-all {
+            color: #A56CD1;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95em;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            border: 1px solid #e6e1f7;
+        }
+
+        .view-all:hover {
+            background-color: #f8f7fc;
+            color: #8a4ec7;
+            text-decoration: none;
+            border-color: #CB95E8;
+        }
+
+         /* ===== SESSIONS GRID ===== */
+        .sessions-container {
+            margin-top: 20px;
+        }
+
+        .sessions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .sessions-count {
+            color: #8B7BA6;
+            font-size: 0.95em;
+            background: #f8f7fc;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .sessions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .session-slot {
+            border: 2px solid #e6e1f7;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .session-slot:hover {
+            border-color: #A56CD1;
+            background-color: #fcfbff;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(165, 108, 209, 0.15);
+        }
+
+        .session-slot.selected {
+            border-color: #A56CD1;
+            background: linear-gradient(135deg, #f8f7fc 0%, #f0ebfa 100%);
+            transform: scale(1.02);
+            box-shadow: 0 8px 20px rgba(165, 108, 209, 0.2);
+        }
+
+        .session-slot.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #f8f7fc;
+        }
+
+        .session-slot.disabled:hover {
+            border-color: #e6e1f7;
+            background-color: #f8f7fc;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .session-time {
+            font-weight: 600;
+            color: #5D2E8C;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+
+        .session-status {
+            font-size: 0.85em;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .available {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+        }
+
+        .booked {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+        }
+
+        .session-duration {
+            color: #8B7BA6;
+            font-size: 0.9em;
+        }
+
+        .no-sessions {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8B7BA6;
+            background-color: #f8f7fc;
+            border-radius: 12px;
+            border: 2px dashed #e6e1f7;
+            grid-column: 1 / -1;
+        }
+
+        /* Time format indicator */
+        .time-format-indicator {
+            display: inline-block;
+            background: #f0ebfa;
+            color: #8B7BA6;
+            font-size: 0.8em;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        /* Time format indicator */
+        .time-format-indicator {
+            display: inline-block;
+            background: #f0ebfa;
+            color: #8B7BA6;
+            font-size: 0.8em;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        /* ===== APPOINTMENT FORM ===== */
+        .appointment-form {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 6px 20px rgba(203, 149, 232, 0.15);
+            border: 1px solid #f0ebfa;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #5D2E8C;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid #e6e1f7;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+            background-color: #fcfbff;
+            color: #333;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #A56CD1;
+            box-shadow: 0 0 0 3px rgba(165, 108, 209, 0.2);
+            background-color: white;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #A56CD1 0%, #8a4ec7 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(165, 108, 209, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(165, 108, 209, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                margin-left: 240px;
+                padding: 25px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+                z-index: 1000;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .main-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .session-item {
+                flex-direction: column;
+            }
+            
+            .session-date {
+                border-right: none;
+                border-bottom: 2px solid #e6e1f7;
+                padding-right: 0;
+                padding-bottom: 15px;
+                margin-right: 0;
+                margin-bottom: 15px;
+                min-width: auto;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="user-info">
+                <div class="avatar">AA</div>
+                <p>Anis Azwani</p>
+                <small>Student ID: 2025123456</small>
+                <small>Faculty: Computer Science</small>
+            </div>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li><a href="student-dashboard.html"><i class="fas fa-chart-bar"></i> Dashboard</a></li>
+            <li class="active"><a href="appointmentStud.html"><i class="far fa-calendar-alt"></i> Appointment</a></li>
+            <li><a href="manageAppStud.html"><i class="far fa-comments"></i> Manage Appointment</a></li>
+            <li><a href="profile.html"><i class="far fa-user"></i> Profile</a></li>
+            <li><a href="historyStud.html"><i class="far fa-clock"></i> History</a></li>
+            <li class="logout"><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="main-header">
+            <div>
+                <h1>Appointment Booking</h1>
+                <p class="welcome-subtitle">Schedule a counseling session with available counselors</p>
+            </div>
+            <div class="header-date" id="currentDate"></div>
+        </div>
+
+        <!-- Appointment Booking Form -->
+        <div class="content-section appointment-form">
+            <div class="section-header">
+                <h2>Book New Appointment</h2>
+            </div>
+            
+            <form id="appointmentForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="appointmentDate"><i class="fas fa-calendar-day"></i> Preferred Date</label>
+                        <input type="date" class="form-control" id="appointmentDate" name="appointmentDate" required>
+                    </div>
+                </div>   
+                
+                    <!-- Sessions Section -->
+                    <div class="form-group">
+    <div class="sessions-header">
+        <label style="margin-bottom: 0;"><i class="fas fa-clock"></i> Available Sessions <span class="time-format-indicator">24-Hour</span></label>
+        <div class="sessions-count" id="sessionsCount">Select a date first</div>
+    </div>
+    
+    <div class="sessions-container">
+        <div class="sessions-grid" id="sessionsGrid">
+            <div class="no-sessions">
+                <i class="fas fa-calendar-alt" style="font-size: 2em; margin-bottom: 10px; color: #A56CD1;"></i><br>
+                Please select a date to view available sessions
+            </div>
+        </div>
+    </div>
+</div>
+  
+                
+                <div class="form-group">
+                    <label for="description"><i class="fas fa-comment-dots"></i> Reasons for Appointment </label>
+                    <textarea class="form-control" id="description" name="description" rows="4" placeholder="Please describe what you would like to discuss during the appointment..."></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-calendar-plus"></i> Book Appointment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Set current date in header
+        function setCurrentDate() {
+            const dateElement = document.getElementById('currentDate');
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = now.toLocaleDateString('en-US', options);
+        }
+        
+        // Load sessions for a specific date
+function loadSessionsForDate(date) {
+    clearSessionsGrid();
+    
+    if (!date) {
+        sessionsCount.textContent = "Select a date first";
+        return;
+    }
+    
+    // Check if date is in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDateObj = new Date(date);
+    
+    if (selectedDateObj < today) {
+        sessionsCount.textContent = "Cannot book in the past";
+        sessionsGrid.innerHTML = `
+            <div class="no-sessions">
+                <i class="fas fa-calendar-times" style="font-size: 2em; margin-bottom: 10px; color: #A56CD1;"></i><br>
+                Cannot book appointments for past dates.<br>
+                Please select a current or future date.
+            </div>
+        `;
+        return;
+    }
+    
+    // Get booked sessions for this date
+    const bookedForDate = bookedSessions[date] || [];
+    
+    // Calculate available sessions
+    const availableSessions = dailySessions.filter(session => 
+        !bookedForDate.includes(session.id)
+    );
+    
+    // Update sessions count
+    sessionsCount.textContent = `${availableSessions.length} of ${dailySessions.length} sessions available`;
+    
+    // Special message for 18 December
+    let specialMessage = "";
+    if (date === "2023-12-18") {
+        specialMessage = "Note: 2 sessions (11:00-12:00 & 15:00-16:00) are not available on this date.";
+        showNotification(specialMessage, 'info');
+    }
+    
+    // Display sessions
+    if (availableSessions.length === 0) {
+        sessionsGrid.innerHTML = `
+            <div class="no-sessions">
+                <i class="fas fa-calendar-times" style="font-size: 2em; margin-bottom: 10px; color: #A56CD1;"></i><br>
+                No available sessions on ${new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}.<br>
+                ${date === "2023-12-18" ? "Special schedule: 2 sessions are unavailable today." : "Please select another date."}
+            </div>
+        `;
+    } else {
+        dailySessions.forEach(session => {
+            const isBooked = bookedForDate.includes(session.id);
+            const isAvailable = !isBooked;
+            
+            const sessionElement = document.createElement('div');
+            sessionElement.className = `session-slot ${isBooked ? 'disabled' : ''}`;
+            sessionElement.dataset.sessionId = session.id;
+            
+            if (isAvailable) {
+                sessionElement.addEventListener('click', () => selectSession(session.id));
+            }
+            
+            // Add special note for unavailable sessions on 18 December
+            let specialNote = "";
+            if (date === "2023-12-18" && (session.id === 3 || session.id === 7)) {
+                specialNote = `<div style="font-size: 0.75em; color: #e74c3c; margin-top: 5px; font-weight: 500;">
+                    <i class="fas fa-exclamation-circle"></i> Unavailable
+                </div>`;
+            }
+            
+            sessionElement.innerHTML = `
+                <div class="session-time">${session.startTime} - ${session.endTime}</div>
+                <div class="session-duration">${session.duration}</div>
+                <div class="session-status ${isAvailable ? 'available' : 'booked'}">
+                    ${isAvailable ? 'Available' : 'Booked'}
+                </div>
+                ${specialNote}
+            `;
+            
+            sessionsGrid.appendChild(sessionElement);
+        });
+    }
+}
+
+// Define sessions in 24-hour format
+// Working hours: 09:00 to 19:00 (10 hours), with sessions every hour
+const dailySessions = [
+    { id: 1, startTime: "09:00", endTime: "10:00", duration: "1 hour" },
+    { id: 2, startTime: "10:00", endTime: "11:00", duration: "1 hour" },
+    { id: 3, startTime: "11:00", endTime: "12:00", duration: "1 hour" },
+    { id: 4, startTime: "13:00", endTime: "14:00", duration: "1 hour" },
+    { id: 5, startTime: "14:00", endTime: "15:00", duration: "1 hour" },
+    { id: 6, startTime: "15:00", endTime: "16:00", duration: "1 hour" }
+];
+        // Form submission handler
+        document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const counselor = document.getElementById('counselor').value;
+            const appointmentDate = document.getElementById('appointmentDate').value;
+            const sessionType = document.getElementById('sessionType').value;
+            const timeSlot = document.getElementById('timeSlot').value;
+            const description = document.getElementById('description').value;
+            
+            // Validate form
+            if (!counselor || !appointmentDate || !sessionType || !timeSlot) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Format date for display
+            const dateObj = new Date(appointmentDate);
+            const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const dayNumber = dateObj.getDate();
+            
+            // Create confirmation message
+            const counselorName = document.getElementById('counselor').options[document.getElementById('counselor').selectedIndex].text;
+            
+            // Show success message
+            alert(`Appointment booked successfully!\n\nCounselor: ${counselorName}\nDate: ${appointmentDate}\nTime: ${timeSlot}\nSession Type: ${sessionType}`);
+            
+            // Reset form
+            document.getElementById('appointmentForm').reset();
+            
+            // In a real application, you would send this data to a server
+            console.log({
+                counselorID: counselor,
+                appointmentDate: appointmentDate,
+                sessionType: sessionType,
+                timeSlot: timeSlot,
+                description: description,
+                studentID: "2025123456",
+                appointmentStatus: "pending"
+            });
+        });
+        
+        // Set minimum date to today for date picker
+        document.addEventListener('DOMContentLoaded', function() {
+            setCurrentDate();
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('appointmentDate').setAttribute('min', today);
+            
+            // Add click handlers for sidebar menu items
+            const menuItems = document.querySelectorAll('.sidebar-menu li');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Highlight the Appointment menu item
+            const appointmentMenuItem = document.querySelector('.sidebar-menu li:nth-child(2)');
+            appointmentMenuItem.classList.add('active');
+        });
+    </script>
+</body>
+</html>

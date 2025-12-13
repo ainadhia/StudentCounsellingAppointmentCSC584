@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Appointment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f8f7fc;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: #51245C;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            box-shadow: 4px 0 15px rgba(203, 149, 232, 0.2);
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            padding: 15px 0;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #a56cd1 0%, #8a4ec7 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+            font-size: 2.2em;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .user-info p {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.3em;
+            color: white;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info small {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        /* Sidebar Menu */
+        .sidebar-menu {
+            list-style: none;
+            padding: 25px 0;
+        }
+
+        .sidebar-menu li {
+            margin: 5px 0;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 16px 30px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            font-size: 1.1em;
+        }
+
+        /* Menu icons */
+        .sidebar-menu li a i {
+            margin-right: 15px;
+            font-size: 1.3em;
+            width: 24px;
+            text-align: center;
+            color: white;
+            opacity: 0.95;
+        }
+
+        .sidebar-menu li.active a {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-left-color: #FFB347;
+            font-weight: 500;
+        }
+
+        .sidebar-menu li a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding-left: 35px;
+        }
+
+        /* For the logout item */
+        .sidebar-menu li.logout {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 20px;
+        }
+
+        .sidebar-menu li.logout a {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .sidebar-menu li.logout a:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px 40px;
+            min-height: 100vh;
+        }
+
+        /* Main Header */
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e6e1f7;
+        }
+
+        .main-header h1 {
+            color: #5D2E8C;
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .welcome-subtitle {
+            color: #8B7BA6;
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+
+        .header-date {
+            background: linear-gradient(135deg, #CB95E8 0%, #A56CD1 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95em;
+            box-shadow: 0 4px 12px rgba(203, 149, 232, 0.3);
+        }
+
+        /* Back Button */
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 10px 20px;
+            background: white;
+            color: #5D2E8C;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(203, 149, 232, 0.1);
+            border: 1px solid #e6e1f7;
+        }
+
+        .back-button i {
+            margin-right: 8px;
+        }
+
+        .back-button:hover {
+            background: #f8f7fc;
+            transform: translateX(-3px);
+            box-shadow: 0 6px 15px rgba(203, 149, 232, 0.2);
+        }
+
+        /* ===== APPOINTMENT DETAIL CARD ===== */
+        .appointment-detail-container {
+            background: white;
+            border-radius: 15px;
+            padding: 35px;
+            box-shadow: 0 6px 20px rgba(203, 149, 232, 0.15);
+            border: 1px solid #f0ebfa;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .appointment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0ebfa;
+        }
+
+        .appointment-id-badge {
+            background: linear-gradient(135deg, #A56CD1 0%, #8a4ec7 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1.1em;
+            box-shadow: 0 4px 12px rgba(165, 108, 209, 0.3);
+        }
+
+        .appointment-status {
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .status-booked {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-completed {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-cancelled {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+
+        /* Appointment Details Grid */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .detail-card {
+            background: #fcfbff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e6e1f7;
+            transition: all 0.3s;
+        }
+
+        .detail-card:hover {
+            border-color: #CB95E8;
+            box-shadow: 0 4px 12px rgba(203, 149, 232, 0.1);
+        }
+
+        .detail-card h3 {
+            color: #5D2E8C;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e6e1f7;
+            font-weight: 600;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #f0ebfa;
+        }
+
+        .detail-label {
+            color: #8B7BA6;
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .detail-value {
+            color: #5D2E8C;
+            font-weight: 600;
+            text-align: right;
+            max-width: 70%;
+        }
+
+        .detail-value span {
+            background: #f0ebfa;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        /* Description Section */
+        .description-section {
+            background: #fcfbff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #e6e1f7;
+        }
+
+        .description-section h3 {
+            color: #5D2E8C;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .description-text {
+            line-height: 1.6;
+            color: #666;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #A56CD1;
+        }
+
+        /* Notes Section */
+        .notes-section {
+            background: #fcfbff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #e6e1f7;
+        }
+
+        .notes-section h3 {
+            color: #5D2E8C;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .notes-text {
+            color: #8B7BA6;
+            font-style: italic;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #FFB347;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px solid #f0ebfa;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: none;
+            min-width: 140px;
+        }
+
+        .btn-update {
+            background: linear-gradient(135deg, #A56CD1 0%, #8a4ec7 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(165, 108, 209, 0.3);
+        }
+
+        .btn-update:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(165, 108, 209, 0.4);
+        }
+
+        .btn-delete {
+            background: #ffeaea;
+            color: #ff3b30;
+            border: 1px solid #ffd1d1;
+        }
+
+        .btn-delete:hover {
+            background: #ffd1d1;
+            transform: translateY(-3px);
+        }
+
+        .btn-back {
+            background: #f8f7fc;
+            color: #5D2E8C;
+            border: 1px solid #e6e1f7;
+        }
+
+        .btn-back:hover {
+            background: #f0ebfa;
+            transform: translateY(-3px);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0ebfa;
+        }
+
+        .modal-header h2 {
+            color: #5D2E8C;
+            font-size: 1.5em;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: #8B7BA6;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            color: #ff3b30;
+            transform: scale(1.1);
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .btn-cancel {
+            background: #f8f7fc;
+            color: #5D2E8C;
+            border: 1px solid #e6e1f7;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background: #f0ebfa;
+        }
+
+        .btn-confirm {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-confirm:hover {
+            background: #d32f2f;
+        }
+
+        /* Update Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #5D2E8C;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e6e1f7;
+            border-radius: 8px;
+            font-size: 1em;
+            background-color: #fcfbff;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #A56CD1;
+            box-shadow: 0 0 0 3px rgba(165, 108, 209, 0.2);
+            background-color: white;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                margin-left: 240px;
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+                z-index: 1000;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .main-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="user-info">
+                <div class="avatar">AA</div>
+                <p>Anis Azwani</p>
+                <small>Student ID: 2025123456</small>
+                <small>Faculty: Computer Science</small>
+            </div>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li><a href="student-dashboard.html"><i class="fas fa-chart-bar"></i> Dashboard</a></li>
+            <li><a href="appointmentStud.html"><i class="far fa-calendar-alt"></i> Appointment</a></li>
+            <li class="active"><a href="manageAppStud.html"><i class="far fa-comments"></i> Manage Appointment</a></li>
+            <li><a href="profile.html"><i class="far fa-user"></i> Profile</a></li>
+            <li><a href="historyStud.html"><i class="far fa-clock"></i> History</a></li>
+            <li class="logout"><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="main-header">
+            <div>
+                <h1>Upcoming Appointment</h1>
+                <p class="welcome-subtitle">Manage your booked appointment!</p>
+            </div>
+            <div class="header-date" id="currentDate"></div>
+        </div>
+
+        <!-- Appointment Detail Card -->
+        <div class="appointment-detail-container" id="appointmentDetail">
+            <!-- Appointment Header with ID and Status -->
+            <div class="appointment-header">
+                <div class="appointment-id-badge" id="appointmentId">APT-2023-006</div>
+                <div class="appointment-status status-booked" id="appointmentStatus">BOOKED</div>
+            </div>
+            
+            <!-- Appointment Details Grid (Simplified) -->
+            <div class="details-grid">
+                <div class="detail-card">
+                    <h3><i class="fas fa-info-circle"></i> Student Information</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Name:</span>
+                        <span class="detail-value">Anis Azwani</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Student ID:</span>
+                        <span class="detail-value">2025123456</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Faculty:</span>
+                        <span class="detail-value">Computer Science</span>
+                    </div>
+                </div>
+                
+                <div class="detail-card">
+                    <h3><i class="far fa-calendar-alt"></i> Date & Time</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Date:</span>
+                        <span class="detail-value" id="appointmentDate">Dec 30, 2025</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Time:</span>
+                        <span class="detail-value" id="appointmentTime">9:00 AM - 10:00 AM</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Duration:</span>
+                        <span class="detail-value">60 minutes</span>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Description Section -->
+            <div class="description-section">
+                <h3><i class="fas fa-align-left"></i> Appointment Description</h3>
+                <div class="description-text" id="appointmentDescription">
+                    Review of current academic standing, GPA analysis, and planning for improving grades in challenging courses. This session will focus on identifying areas for improvement and creating a structured study plan for the upcoming semester. We'll also discuss strategies for managing coursework load and balancing academic responsibilities with extracurricular activities.
+                </div>
+            </div>
+            
+            <!-- Notes Section (if any) -->
+            <div class="notes-section" id="notesSection" style="display: none;">
+                <h3><i class="fas fa-sticky-note"></i> Notes</h3>
+                <div class="notes-text" id="counselorNotes">
+                    Notes from the counselor will appear here after the session.
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-update" id="updateButton">
+                    <i class="fas fa-edit"></i> Update Appointment
+                </button>
+                <button class="btn btn-delete" id="deleteButton">
+                    <i class="fas fa-trash"></i> Delete Appointment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Confirm Deletion</h2>
+                <button class="close-modal" id="closeDeleteModal">&times;</button>
+            </div>
+            <div class="modal-content">
+                <p>Are you sure you want to delete appointment <strong id="deleteAppointmentId">APT-2023-006</strong>?</p>
+                <p>This action cannot be undone. All appointment details will be permanently removed.</p>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" id="cancelDelete">Cancel</button>
+                <button class="btn-confirm" id="confirmDelete">Delete Appointment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Appointment Modal -->
+    <div class="modal-overlay" id="updateModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Update Appointment</h2>
+                <button class="close-modal" id="closeUpdateModal">&times;</button>
+            </div>
+            <div class="modal-content">
+                <form id="updateForm">
+                    <div class="form-group">
+                        <label for="updateDate">Date</label>
+                        <input type="date" id="updateDate" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="updateTime">Time Slot</label>
+                        <select id="updateTime" class="form-control" required>
+                            <option value="">Select a time slot</option>
+                            <option value="09:00-10:00">09:00 AM - 10:00 AM</option>
+                            <option value="10:30-11:30" selected>10:00 AM - 11:00 AM</option>
+                            <option value="14:00-15:00">02:00 PM - 03:00 PM</option>
+                            <option value="15:30-16:30">03:30 PM - 04:30 PM</option>
+                            <option value="16:30-17:30">04:30 PM - 05:30 PM</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="updateDescription">Description</label>
+                        <textarea id="updateDescription" class="form-control" rows="4" required>Review of current academic standing, GPA analysis, and planning for improving grades in challenging courses. This session will focus on identifying areas for improvement and creating a structured study plan for the upcoming semester. We'll also discuss strategies for managing coursework load and balancing academic responsibilities with extracurricular activities.</textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" id="cancelUpdate">Cancel</button>
+                <button class="btn-update" id="confirmUpdate">Update Appointment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="successTitle">Success</h2>
+                <button class="close-modal" id="closeSuccessModal">&times;</button>
+            </div>
+            <div class="modal-content">
+                <p id="successMessage">Appointment has been successfully updated!</p>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-update" id="closeSuccess">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set current date in header
+        function setCurrentDate() {
+            const dateElement = document.getElementById('currentDate');
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Sample appointment data (in a real app, this would come from an API)
+        const appointmentData = {
+            'APT-2023-001': {
+                id: 'APT-2023-001',
+                date: 'Nov 15, 2025',
+                time: '10:30 AM - 11:30 AM',
+                description: 'Discuss internship opportunities and career paths in software development. Review current skills and plan for future certifications.',
+                status: 'COMPLETED',
+                statusClass: 'status-completed'
+            },
+            'APT-2023-002': {
+                id: 'APT-2023-002',
+                date: 'Oct 22, 2025',
+                time: '2:30 PM - 3:30 PM',
+                description: 'Course selection for next semester, graduation requirements review, and academic planning for final year project.',
+                status: 'COMPLETED',
+                statusClass: 'status-completed'
+            },
+            'APT-2023-003': {
+                id: 'APT-2023-003',
+                date: 'Dec 5, 2025',
+                time: '1:00 PM - 2:00 PM',
+                description: 'Time management strategies, study skills improvement, and stress management techniques for better academic performance.',
+                status: 'COMPLETED',
+                statusClass: 'status-completed'
+            },
+            'APT-2023-004': {
+                id: 'APT-2023-004',
+                date: 'Sep 16, 2025',
+                time: '9:00 AM - 10:00 AM',
+                description: 'Discussion about graduate school options, application process, and research opportunities for Computer Science students.',
+                status: 'COMPLETED',
+                statusClass: 'status-completed'
+            },
+            'APT-2023-005': {
+                id: 'APT-2023-005',
+                date: 'Oct 15, 2025',
+                time: '4:00 PM - 5:00 PM',
+                description: 'Advising on course selection for next semester, prerequisites check, and elective options for specialization.',
+                status: 'CANCELLED',
+                statusClass: 'status-cancelled'
+            },
+            'APT-2023-006': {
+                id: 'APT-2023-006',
+                date: 'Dec 30, 2025',
+                time: '10:30 AM - 11:30 AM',
+                description: 'Review of current academic standing, GPA analysis, and planning for improving grades in challenging courses. This session will focus on identifying areas for improvement and creating a structured study plan for the upcoming semester. We\'ll also discuss strategies for managing coursework load and balancing academic responsibilities with extracurricular activities.',
+                status: 'BOOKED',
+                statusClass: 'status-booked'
+            }
+        };
+
+        // Load appointment data based on URL parameter
+        function loadAppointmentData() {
+            const appointmentId = getUrlParameter('id') || 'APT-2023-006';
+            const appointment = appointmentData[appointmentId] || appointmentData['APT-2023-006'];
+            
+            // Update UI with appointment data
+            document.getElementById('appointmentId').textContent = appointment.id;
+            document.getElementById('deleteAppointmentId').textContent = appointment.id;
+            document.getElementById('appointmentDate').textContent = appointment.date;
+            document.getElementById('appointmentTime').textContent = appointment.time;
+            document.getElementById('appointmentDescription').textContent = appointment.description;
+            
+            // Update status
+            const statusElement = document.getElementById('appointmentStatus');
+            statusElement.textContent = appointment.status;
+            statusElement.className = 'appointment-status ' + appointment.statusClass;
+            
+            // Show notes section only for completed appointments
+            if (appointment.status === 'COMPLETED') {
+                document.getElementById('notesSection').style.display = 'block';
+            }
+            
+            // Set update form values
+            document.getElementById('updateDescription').value = appointment.description;
+            
+            // Set date in YYYY-MM-DD format for date input
+            const dateParts = appointment.date.split(' ');
+            const months = {
+                'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+                'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+                'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+            };
+            if (dateParts.length === 3) {
+                const month = months[dateParts[0]] || '12';
+                const day = dateParts[1].replace(',', '');
+                const year = dateParts[2];
+                document.getElementById('updateDate').value = `${year}-${month}-${day.padStart(2, '0')}`;
+            }
+            
+            // Set the time slot
+            const timeSelect = document.getElementById('updateTime');
+            const timeValue = appointment.time.replace(' AM', '').replace(' PM', '').replace(' ', '');
+            for (let i = 0; i < timeSelect.options.length; i++) {
+                if (timeSelect.options[i].text.includes(appointment.time.substring(0, 5))) {
+                    timeSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        // Delete appointment function
+        function deleteAppointment() {
+            const appointmentId = document.getElementById('appointmentId').textContent;
+            
+            // In a real application, you would send a DELETE request to your API here
+            console.log(`Deleting appointment: ${appointmentId}`);
+            
+            // Show success message
+            document.getElementById('successTitle').textContent = 'Appointment Deleted';
+            document.getElementById('successMessage').textContent = `Appointment ${appointmentId} has been successfully deleted.`;
+            
+            // Close delete modal and show success modal
+            document.getElementById('deleteModal').style.display = 'none';
+            document.getElementById('successModal').style.display = 'flex';
+            
+            // After a delay, redirect back to history page
+            setTimeout(() => {
+                window.location.href = 'history.html';
+            }, 2000);
+        }
+
+        // Update appointment function
+        function updateAppointment() {
+            const appointmentId = document.getElementById('appointmentId').textContent;
+            const dateInput = document.getElementById('updateDate').value;
+            const timeSlot = document.getElementById('updateTime').value;
+            const description = document.getElementById('updateDescription').value;
+            
+            // Format date for display
+            const dateObj = new Date(dateInput);
+            const options = { month: 'short', day: 'numeric', year: 'numeric' };
+            const formattedDate = dateObj.toLocaleDateString('en-US', options);
+            
+            // Format time for display
+            let formattedTime = '';
+            if (timeSlot === '09:00-10:00') formattedTime = '09:00 AM - 10:00 AM';
+            else if (timeSlot === '10:30-11:30') formattedTime = '10:30 AM - 11:30 AM';
+            else if (timeSlot === '14:00-15:00') formattedTime = '02:00 PM - 03:00 PM';
+            else if (timeSlot === '15:30-16:30') formattedTime = '03:30 PM - 04:30 PM';
+            else if (timeSlot === '16:30-17:30') formattedTime = '04:30 PM - 05:30 PM';
+            
+            // Update the displayed values
+            document.getElementById('appointmentDate').textContent = formattedDate;
+            document.getElementById('appointmentTime').textContent = formattedTime;
+            document.getElementById('appointmentDescription').textContent = description;
+            
+            // In a real application, you would send a PUT request to your API here
+            console.log(`Updating appointment: ${appointmentId}`);
+            console.log(`New date: ${formattedDate}, New time: ${formattedTime}, New type: ${appointmentType}`);
+            
+            // Show success message
+            document.getElementById('successTitle').textContent = 'Appointment Updated';
+            document.getElementById('successMessage').textContent = `Appointment ${appointmentId} has been successfully updated.`;
+            
+            // Close update modal and show success modal
+            document.getElementById('updateModal').style.display = 'none';
+            document.getElementById('successModal').style.display = 'flex';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setCurrentDate();
+            loadAppointmentData();
+            
+            // Add click handlers for sidebar menu items
+            const menuItems = document.querySelectorAll('.sidebar-menu li');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Highlight the History menu item
+            const historyMenuItem = document.querySelector('.sidebar-menu li:nth-child(5)');
+            historyMenuItem.classList.add('active');
+            
+            // Update button functionality
+            document.getElementById('updateButton').addEventListener('click', function() {
+                document.getElementById('updateModal').style.display = 'flex';
+            });
+            
+            // Delete button functionality
+            document.getElementById('deleteButton').addEventListener('click', function() {
+                document.getElementById('deleteModal').style.display = 'flex';
+            });
+            
+            // Close modals
+            document.getElementById('closeDeleteModal').addEventListener('click', function() {
+                document.getElementById('deleteModal').style.display = 'none';
+            });
+            
+            document.getElementById('closeUpdateModal').addEventListener('click', function() {
+                document.getElementById('updateModal').style.display = 'none';
+            });
+            
+            document.getElementById('closeSuccessModal').addEventListener('click', function() {
+                document.getElementById('successModal').style.display = 'none';
+            });
+            
+            // Cancel buttons
+            document.getElementById('cancelDelete').addEventListener('click', function() {
+                document.getElementById('deleteModal').style.display = 'none';
+            });
+            
+            document.getElementById('cancelUpdate').addEventListener('click', function() {
+                document.getElementById('updateModal').style.display = 'none';
+            });
+            
+            // Confirm delete
+            document.getElementById('confirmDelete').addEventListener('click', deleteAppointment);
+            
+            // Confirm update
+            document.getElementById('confirmUpdate').addEventListener('click', updateAppointment);
+            
+            // Close success modal
+            document.getElementById('closeSuccess').addEventListener('click', function() {
+                document.getElementById('successModal').style.display = 'none';
+            });
+            
+            // Close modals when clicking outside
+            const modals = document.querySelectorAll('.modal-overlay');
+            modals.forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Prevent form submission
+            document.getElementById('updateForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                updateAppointment();
+            });
+        });
+    </script>
+</body>
+</html>
