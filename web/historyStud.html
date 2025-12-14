@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment History</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: #f8f7fc;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: #51245C;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            overflow-y: auto;
+            box-shadow: 4px 0 15px rgba(203, 149, 232, 0.2);
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info {
+            padding: 15px 0;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #a56cd1 0%, #8a4ec7 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+            font-size: 2.2em;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .user-info p {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.3em;
+            color: white;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-info small {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        /* Sidebar Menu */
+        .sidebar-menu {
+            list-style: none;
+            padding: 25px 0;
+        }
+
+        .sidebar-menu li {
+            margin: 5px 0;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 16px 30px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            font-size: 1.1em;
+        }
+
+        /* Menu icons */
+        .sidebar-menu li a i {
+            margin-right: 15px;
+            font-size: 1.3em;
+            width: 24px;
+            text-align: center;
+            color: white;
+            opacity: 0.95;
+        }
+
+        .sidebar-menu li.active a {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-left-color: #FFB347;
+            font-weight: 500;
+        }
+
+        .sidebar-menu li a:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding-left: 35px;
+        }
+
+        /* For the logout item */
+        .sidebar-menu li.logout {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 20px;
+        }
+
+        .sidebar-menu li.logout a {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .sidebar-menu li.logout a:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px 40px;
+            min-height: 100vh;
+        }
+
+        /* Main Header */
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #e6e1f7;
+        }
+
+        .main-header h1 {
+            color: #5D2E8C;
+            font-size: 2.2em;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .welcome-subtitle {
+            color: #8B7BA6;
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+
+        .header-date {
+            background: linear-gradient(135deg, #CB95E8 0%, #A56CD1 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95em;
+            box-shadow: 0 4px 12px rgba(203, 149, 232, 0.3);
+        }
+
+        /* ===== SEARCH CONTROLS ===== */
+        .search-controls {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 6px 20px rgba(203, 149, 232, 0.15);
+            border: 1px solid #f0ebfa;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-group {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #5D2E8C;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            padding-left: 45px;
+            border: 1px solid #e6e1f7;
+            border-radius: 10px;
+            font-size: 1em;
+            background-color: #fcfbff;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #A56CD1;
+            box-shadow: 0 0 0 3px rgba(165, 108, 209, 0.2);
+            background-color: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: #A56CD1;
+            font-size: 1.1em;
+        }
+
+        .search-hint {
+            margin-top: 8px;
+            color: #8B7BA6;
+            font-size: 0.85em;
+            font-style: italic;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #A56CD1 0%, #8a4ec7 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(165, 108, 209, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(165, 108, 209, 0.4);
+        }
+
+        .clear-btn {
+            background: #f8f7fc;
+            color: #5D2E8C;
+            border: 1px solid #e6e1f7;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .clear-btn:hover {
+            background-color: #f0ebfa;
+            border-color: #A56CD1;
+        }
+
+        /* ===== APPOINTMENT TABLE ===== */
+        .appointment-table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 6px 20px rgba(203, 149, 232, 0.15);
+            border: 1px solid #f0ebfa;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            color: #5D2E8C;
+            font-size: 1.6em;
+            font-weight: 600;
+        }
+
+        .view-all {
+            color: #A56CD1;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95em;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            border: 1px solid #e6e1f7;
+        }
+
+        .view-all:hover {
+            background-color: #f8f7fc;
+            color: #8a4ec7;
+            text-decoration: none;
+            border-color: #CB95E8;
+        }
+
+        .appointment-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .appointment-table thead {
+            background: linear-gradient(135deg, #f8f7fc 0%, #f0ebfa 100%);
+        }
+
+        .appointment-table th {
+            padding: 16px 20px;
+            text-align: left;
+            color: #5D2E8C;
+            font-weight: 600;
+            font-size: 0.95em;
+            border-bottom: 2px solid #e6e1f7;
+        }
+
+        .appointment-table tbody tr {
+            border-bottom: 1px solid #f0ebfa;
+            transition: all 0.3s;
+        }
+
+        .appointment-table tbody tr:hover {
+            background-color: #fcfbff;
+        }
+
+        .appointment-table td {
+            padding: 18px 20px;
+            color: #666;
+            vertical-align: top;
+        }
+
+        .appointment-id {
+            font-weight: 600;
+            color: #5D2E8C;
+        }
+
+        .appointment-date {
+            font-weight: 600;
+            color: #5D2E8C;
+        }
+
+        .appointment-time {
+            color: #8B7BA6;
+            font-size: 0.9em;
+            margin-top: 4px;
+        }
+
+        .appointment-description {
+            max-width: 300px;
+            line-height: 1.5;
+        }
+
+        .description-truncate {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Plain Text Status - NO COLOR */
+        .status-text {
+            font-weight: 500;
+            text-transform: uppercase;
+            color: #666; /* Plain gray color */
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 8px;
+            margin-bottom: 5px;
+        }
+
+        .action-view {
+            background: #f0ebfa;
+            color: #5D2E8C;
+            border: 1px solid #e6e1f7;
+        }
+
+        .action-view:hover {
+            background: #e6e1f7;
+        }
+
+        .action-delete {
+            background: #ffeaea;
+            color: #ff3b30;
+            border: 1px solid #ffd1d1;
+        }
+
+        .action-delete:hover {
+            background: #ffd1d1;
+        }
+
+        /* Search highlight */
+        .highlight {
+            background-color: #FFF9C4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        /* ===== STATISTICS CARDS ===== */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 6px 20px rgba(203, 149, 232, 0.15);
+            transition: all 0.3s ease;
+            border: 1px solid #f0ebfa;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(203, 149, 232, 0.25);
+            border-color: #CB95E8;
+        }
+
+        .card-icon {
+            font-size: 2.8em;
+            margin-right: 20px;
+            color: #A56CD1;
+            opacity: 0.9;
+        }
+
+        .card-content {
+            flex: 1;
+        }
+
+        .card-content h3 {
+            color: #8B7BA6;
+            font-size: 1em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .card-number {
+            font-size: 2.8em;
+            font-weight: 700;
+            color: #5D2E8C;
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+
+        .card-detail {
+            color: #A99AC2;
+            font-size: 0.9em;
+            font-weight: 400;
+        }
+
+        /* No results message */
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #8B7BA6;
+            font-size: 1.1em;
+        }
+
+        .no-results i {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #A56CD1;
+            opacity: 0.5;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+            }
+            
+            .main-content {
+                margin-left: 240px;
+                padding: 25px;
+            }
+            
+            .search-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .appointment-description {
+                max-width: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+                z-index: 1000;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .main-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .appointment-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .appointment-table thead {
+                display: none;
+            }
+            
+            .appointment-table tbody tr {
+                display: block;
+                margin-bottom: 20px;
+                border: 1px solid #e6e1f7;
+                border-radius: 10px;
+                padding: 15px;
+            }
+            
+            .appointment-table td {
+                display: block;
+                padding: 10px 15px;
+                text-align: right;
+                position: relative;
+                border-bottom: 1px solid #f0ebfa;
+            }
+            
+            .appointment-table td:last-child {
+                border-bottom: none;
+            }
+            
+            .appointment-table td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                font-weight: 600;
+                color: #5D2E8C;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="user-info">
+                <div class="avatar">AA</div>
+                <p>Anis Azwani</p>
+                <small>Student ID: 2025123456</small>
+                <small>Faculty: Computer Science</small>
+            </div>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li><a href="studentDashboard.html"><i class="fas fa-chart-bar"></i> Dashboard</a></li>
+            <li><a href="appointmentStud.html"><i class="far fa-calendar-alt"></i> Appointment</a></li>
+            <li><a href="manageAppStud.html"><i class="far fa-comments"></i> Manage Appointment</a></li>
+            <li><a href="profile.html"><i class="far fa-user"></i> Profile</a></li>
+            <li class="active"><a href="historyStud.html"><i class="far fa-clock"></i> History</a></li>
+            <li class="logout"><a href="login.html"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="main-header">
+            <div>
+                <h1>Appointment History</h1>
+                <p class="welcome-subtitle">Review your past counseling sessions and progress</p>
+            </div>
+            <div class="header-date" id="currentDate"></div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="cards">
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Total Appointments</h3>
+                    <div class="card-number" id="totalAppointments">6</div>
+                    <p class="card-detail">All time</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Completed</h3>
+                    <div class="card-number" id="completedAppointments">4</div>
+                    <p class="card-detail">Sessions attended</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Booked</h3>
+                    <div class="card-number" id="upcomingAppointments">1</div>
+                    <p class="card-detail">Scheduled sessions</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="card-content">
+                    <h3>Cancelled</h3>
+                    <div class="card-number" id="cancelledAppointments">1</div>
+                    <p class="card-detail">Cancelled appointments</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Controls -->
+        <div class="search-controls">
+            <div class="search-row">
+                <div class="search-group">
+                    <label for="searchInput">Search Appointments</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-search search-icon"></i>
+                        <input 
+                            type="text" 
+                            class="search-input" 
+                            id="searchInput" 
+                            placeholder="Search by ID, date, time, description, status, or any keyword..."
+                        >
+                    </div>
+                    <p class="search-hint">Type to search across all appointment fields. Press Enter or click Search.</p>
+                </div>
+                
+                <button class="search-btn" id="searchButton">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                
+                <button class="clear-btn" id="clearButton">
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- Appointment History Table -->
+        <div class="appointment-table-container">
+            <div class="section-header">
+                <h2>Appointment History</h2>
+                <div>
+                    <span id="searchResultsCount" style="color: #5D2E8C; font-weight: 500; margin-right: 15px;"></span>
+                    <a href="#" class="view-all">Export to CSV</a>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="appointment-table" id="appointmentTable">
+                    <thead>
+                        <tr>
+                            <th>Appointment ID</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appointmentTableBody">
+                        <!-- Appointment 1 -->
+                        <tr>
+                            <td class="appointment-id" data-label="Appointment ID">APT-2023-001</td>
+                            <td class="appointment-date" data-label="Date">Nov 15, 2025</td>
+                            <td data-label="Time">
+                                <span class="appointment-time">10:30 AM - 11:30 AM</span>
+                            </td>
+                            <td class="appointment-description" data-label="Description">
+                                <div class="description-truncate">
+                                    Discuss internship opportunities and career paths in software development. Review current skills and plan for future certifications.
+                                </div>
+                            </td>
+                            <td data-label="Status">
+                                <span class="status-text">COMPLETED</span>
+                            </td>
+                            
+                            <td data-label="Actions">
+                                <button class="action-btn action-view" onclick="viewAppointment('APT-2023-002')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="action-btn action-delete" onclick="deleteAppointment('APT-2023-002')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Appointment 2 -->
+                        <tr>
+                            <td class="appointment-id" data-label="Appointment ID">APT-2023-002</td>
+                            <td class="appointment-date" data-label="Date">Oct 22, 2025</td>
+                            <td data-label="Time">
+                                <span class="appointment-time">2:30 PM - 3:30 PM</span>
+                            </td>
+                            <td class="appointment-description" data-label="Description">
+                                <div class="description-truncate">
+                                    Course selection for next semester, graduation requirements review, and academic planning for final year project.
+                                </div>
+                            </td>
+                            <td data-label="Status">
+                                <span class="status-text">COMPLETED</span>
+                            </td>
+                            <td data-label="Actions">
+                                <button class="action-btn action-view" onclick="viewAppointment('APT-2023-002')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="action-btn action-delete" onclick="deleteAppointment('APT-2023-002')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Appointment 3 -->
+                        <tr>
+                            <td class="appointment-id" data-label="Appointment ID">APT-2023-003</td>
+                            <td class="appointment-date" data-label="Date">Dec 5, 2025</td>
+                            <td data-label="Time">
+                                <span class="appointment-time">1:00 PM - 2:00 PM</span>
+                            </td>
+                            <td class="appointment-description" data-label="Description">
+                                <div class="description-truncate">
+                                    Time management strategies, study skills improvement, and stress management techniques for better academic performance.
+                                </div>
+                            </td>
+                            <td data-label="Status">
+                                <span class="status-text">COMPLETED</span>
+                            </td>
+                            <td data-label="Actions">
+                                <button class="action-btn action-view" onclick="viewAppointment('APT-2023-003')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="action-btn action-delete" onclick="deleteAppointment('APT-2023-003')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Appointment 4 -->
+                        <tr>
+                            <td class="appointment-id" data-label="Appointment ID">APT-2023-004</td>
+                            <td class="appointment-date" data-label="Date">Sep 16, 2025</td>
+                            <td data-label="Time">
+                                <span class="appointment-time">9:00 AM - 10:00 AM</span>
+                            </td>
+                            <td class="appointment-description" data-label="Description">
+                                <div class="description-truncate">
+                                    Discussion about graduate school options, application process, and research opportunities for Computer Science students.
+                                </div>
+                            </td>
+                            <td data-label="Status">
+                                <span class="status-text">COMPLETED</span>
+                            </td>
+                            <td data-label="Actions">
+                                <button class="action-btn action-view" onclick="viewAppointment('APT-2023-004')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="action-btn action-delete" onclick="deleteAppointment('APT-2023-004')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Appointment 5 -->
+                        <tr>
+                            <td class="appointment-id" data-label="Appointment ID">APT-2023-005</td>
+                            <td class="appointment-date" data-label="Date">Oct 15, 2025</td>
+                            <td data-label="Time">
+                                <span class="appointment-time">4:00 PM - 5:00 PM</span>
+                            </td>
+                            <td class="appointment-description" data-label="Description">
+                                <div class="description-truncate">
+                                    Advising on course selection for next semester, prerequisites check, and elective options for specialization.
+                                </div>
+                            </td>
+                            <td data-label="Status">
+                                <span class="status-text">CANCELLED</span>
+                            </td>
+                            <td data-label="Actions">
+                                <button class="action-btn action-view" onclick="viewAppointment('APT-2023-005')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="action-btn action-delete" onclick="deleteAppointment('APT-2023-005')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Appointment 6 -->
+                        <tr>
+                            <td class="appointment-id" data-label="Appointment ID">APT-2023-006</td>
+                            <td class="appointment-date" data-label="Date">Dec 30, 2025</td>
+                            <td data-label="Time">
+                                <span class="appointment-time">10:30 AM - 11:30 AM</span>
+                            </td>
+                            <td class="appointment-description" data-label="Description">
+                                <div class="description-truncate">
+                                    Review of current academic standing, GPA analysis, and planning for improving grades in challenging courses.
+                                </div>
+                            </td>
+                            <td data-label="Status">
+                                <span class="status-text">BOOKED</span>
+                            </td>
+                            <td data-label="Actions">
+                                <button class="action-btn action-view" onclick="viewAppointment('APT-2023-006')">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="action-btn action-delete" onclick="deleteAppointment('APT-2023-006')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- No results message (hidden by default) -->
+                <div id="noResultsMessage" class="no-results" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <h3>No appointments found</h3>
+                    <p>Try adjusting your search terms or clear the search to see all appointments.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set current date in header
+        function setCurrentDate() {
+            const dateElement = document.getElementById('currentDate');
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = now.toLocaleDateString('en-US', options);
+        }
+        
+        // Store original table data
+        let originalTableData = [];
+        
+        // Function to highlight search terms
+        function highlightText(text, searchTerm) {
+            if (!searchTerm) return text;
+            
+            const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<span class="highlight">$1</span>');
+        }
+        
+        // Function to perform search
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+            const tableBody = document.getElementById('appointmentTableBody');
+            const rows = tableBody.querySelectorAll('tr');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            const resultsCountElement = document.getElementById('searchResultsCount');
+            
+            let visibleCount = 0;
+            let completedCount = 0;
+            let pendingCount = 0;
+            let cancelledCount = 0;
+            
+            // If search is empty, show all rows
+            if (!searchTerm) {
+                rows.forEach(row => {
+                    row.style.display = '';
+                    
+                    // Restore original text (remove highlights)
+                    const cells = row.querySelectorAll('td');
+                    cells.forEach(cell => {
+                        if (cell.querySelector('.highlight')) {
+                            cell.innerHTML = cell.innerHTML.replace(/<span class="highlight">/g, '').replace(/<\/span>/g, '');
+                        }
+                    });
+                    
+                    visibleCount++;
+                    
+                    // Count statuses
+                    const statusCell = row.querySelector('.status-text');
+                    if (statusCell) {
+                        const status = statusCell.textContent.trim();
+                        if (status === 'COMPLETED') completedCount++;
+                        else if (status === 'PENDING') pendingCount++;
+                        else if (status === 'CANCELLED') cancelledCount++;
+                    }
+                });
+                
+                noResultsMessage.style.display = 'none';
+                resultsCountElement.textContent = '';
+                
+                // Update stats
+                updateStatistics(visibleCount, completedCount, pendingCount, cancelledCount);
+                return;
+            }
+            
+            // Perform search
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let rowText = '';
+                
+                // Collect all text from the row
+                cells.forEach(cell => {
+                    // Skip the actions cell
+                    if (!cell.querySelector('.action-btn')) {
+                        rowText += cell.textContent.toLowerCase() + ' ';
+                    }
+                });
+                
+                // Check if search term exists in row text
+                if (rowText.includes(searchTerm)) {
+                    row.style.display = '';
+                    visibleCount++;
+                    
+                    // Highlight search term in each cell
+                    cells.forEach(cell => {
+                        // Skip the actions cell
+                        if (!cell.querySelector('.action-btn')) {
+                            const originalText = cell.textContent;
+                            cell.innerHTML = highlightText(originalText, searchTerm);
+                        }
+                    });
+                    
+                    // Count statuses
+                    const statusCell = row.querySelector('.status-text');
+                    if (statusCell) {
+                        const status = statusCell.textContent.trim();
+                        if (status === 'COMPLETED') completedCount++;
+                        else if (status === 'PENDING') pendingCount++;
+                        else if (status === 'CANCELLED') cancelledCount++;
+                    }
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Show/hide no results message
+            if (visibleCount === 0) {
+                noResultsMessage.style.display = 'block';
+                resultsCountElement.textContent = '0 results';
+            } else {
+                noResultsMessage.style.display = 'none';
+                resultsCountElement.textContent = `${visibleCount} appointment${visibleCount !== 1 ? 's' : ''} found`;
+            }
+            
+            // Update stats
+            updateStatistics(visibleCount, completedCount, pendingCount, cancelledCount);
+        }
+        
+        // Function to update statistics
+        function updateStatistics(total, completed, pending, cancelled) {
+            document.getElementById('totalAppointments').textContent = total;
+            document.getElementById('completedAppointments').textContent = completed;
+            document.getElementById('upcomingAppointments').textContent = pending;
+            document.getElementById('cancelledAppointments').textContent = cancelled;
+        }
+        
+        // Function to clear search
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            performSearch();
+        }
+        
+        // View appointment details
+        function viewAppointment(appointmentId) {
+            alert(`Viewing details for appointment: ${appointmentId}\n\nIn a real application, this would open a detailed view modal.`);
+            console.log(`Fetching details for appointment: ${appointmentId}`);
+        }
+        
+        // Delete appointment
+        function deleteAppointment(appointmentId) {
+            if (confirm(`Are you sure you want to delete appointment ${appointmentId}?\n\nThis action cannot be undone.`)) {
+                // In a real application, you would:
+                // 1. Send deletion request to server
+                // 2. Remove the row from the table
+                alert(`Appointment ${appointmentId} has been deleted.`);
+                
+                // Remove the row for demo purposes
+                const rows = document.querySelectorAll('#appointmentTableBody tr');
+                rows.forEach(row => {
+                    const idCell = row.querySelector('.appointment-id');
+                    if (idCell && idCell.textContent === appointmentId) {
+                        row.remove();
+                        performSearch(); // Update search results
+                    }
+                });
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setCurrentDate();
+            
+            // Add click handlers for sidebar menu items
+            const menuItems = document.querySelectorAll('.sidebar-menu li');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // Highlight the History menu item
+            const historyMenuItem = document.querySelector('.sidebar-menu li:nth-child(5)');
+            historyMenuItem.classList.add('active');
+            
+       
+    </script>        
+           
