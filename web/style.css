@@ -1,5 +1,17 @@
 /* ===== BASE STYLES ===== */
-* {
+
+:root {
+    --uitm-purple: #42145F; /* Ungu Rasmi UiTM */
+    --uitm-gold: #FFCC00;   /* Emas Rasmi UiTM */
+    --bg-soft: #f4f7f6;
+    --white: #ffffff;
+    --text-main: #2d3436;
+    --text-muted: #636e72;
+    --error-red: #d63031;
+    --border-color: #dfe6e9;
+}
+
+*{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -522,5 +534,183 @@ body {
         margin-bottom: 15px;
         min-width: auto;
         text-align: left;
+    }
+}
+
+/* NANI PUNYA */
+
+body {
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-soft);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* main container */
+.auth-container {
+    width: 100%;
+    max-width: 650px;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(66, 20, 95, 0.1);
+    overflow: hidden;
+    margin: 20px;
+}
+
+/* Header Kotak */
+.form-header {
+    background: var(--uitm-purple);
+    color: var(--white);
+    padding: 35px;
+    text-align: center;
+    border-bottom: 5px solid var(--uitm-gold);
+}
+
+.form-header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.form-header p {
+    margin: 10px 0 0;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* =========================================
+   FORM CONTENT
+   ========================================= */
+.form-content {
+    padding: 40px;
+}
+
+/* Susun atur baris (Flexbox - Tidak Bersambung) */
+.form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--uitm-purple);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+/* Input Styling */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: #fafafa;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--uitm-purple);
+    background-color: var(--white);
+    box-shadow: 0 0 0 4px rgba(66, 20, 95, 0.05);
+}
+
+/* Eye Icon Positioning */
+.pass-toggle {
+    position: absolute;
+    right: 15px;
+    top: 38px; /* Selaras dengan tengah input */
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    z-index: 10;
+}
+
+/* =========================================
+   ROLE SELECTION (RADIO BUTTONS)
+   ========================================= */
+.role-group {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px dashed var(--border-color);
+    margin-bottom: 20px;
+}
+
+.role-group label {
+    margin-bottom: 12px;
+}
+
+.radio-container {
+    display: flex;
+    gap: 30px;
+}
+
+.radio-container label {
+    font-weight: 500;
+    color: var(--text-main);
+    cursor: pointer;
+    text-transform: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* =========================================
+   BUTTONS & ERROR MESSAGES
+   ========================================= */
+.btn-primary {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--uitm-purple);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary:hover {
+    background-color: #311046;
+}
+
+.error-msg {
+    color: var(--error-red);
+    font-size: 0.75rem;
+    margin-top: 5px;
+    font-weight: 600;
+}
+
+/* Hilangkan icon mata bawaan browser (Edge/Chrome) */
+input::-ms-reveal, input::-ms-clear {
+    display: none;
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .form-row {
+        flex-direction: column;
+        gap: 20px;
     }
 }

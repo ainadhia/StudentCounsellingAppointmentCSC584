@@ -7,6 +7,6 @@
         </session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>register.html</welcome-file>
+        <welcome-file>register.jsp</welcome-file>
     </welcome-file-list>
 </web-app>

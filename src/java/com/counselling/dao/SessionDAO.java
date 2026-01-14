@@ -25,8 +25,7 @@ public class SessionDAO {
             
             int row = ps.executeUpdate();
             if (row > 0) result = true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
         } finally {
             try { if (ps != null) ps.close(); if (conn != null) conn.close(); } catch (SQLException e) {}
         }
@@ -34,13 +33,13 @@ public class SessionDAO {
     }
 
     public List<Session> getSessionsByDate(String date, String counselorID) {
-        List<Session> list = new ArrayList<Session>();
+        List<Session> list = new ArrayList<>();
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
             conn = DBConnection.createConnection();
-            String sql = "SELECT * FROM SESSION WHERE TRIM(SESSIONDATE) = ? AND TRIM(COUNSELORID) = ? ORDER BY STARTTIME ASC";
+            String sql = "SELECT * FROM SESSION WHERE SESSIONDATE = ? AND COUNSELORID = ? ORDER BY STARTTIME ASC";
             ps = conn.prepareStatement(sql);
             ps.setString(1, date);
             ps.setString(2, counselorID);
