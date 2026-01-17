@@ -1,5 +1,9 @@
 package com.counselling.dao;
 
+<<<<<<< HEAD
+=======
+import com.counselling.model.Counselor;
+>>>>>>> cfe4021dbeaf489fd67b19fec1c67eb660810512
 import com.counselling.util.DBConnection;
 import com.counselling.model.Student;
 import java.sql.*;
@@ -119,4 +123,37 @@ public class UserDAO {
         }
         return user;
     }
+<<<<<<< HEAD
+=======
+       
+    public Counselor authenticateCounselor(String id, String password) throws SQLException {
+        String sql = "SELECT u.*, c.ROOMNO, c.COUNSELORID " +
+                     "FROM USERS u JOIN COUNSELOR c ON u.ID = c.ID " +
+                     "WHERE c.COUNSELORID = ? AND u.USERPASSWORD = ?";
+
+        try (Connection conn = DBConnection.createConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, id);
+            ps.setString(2, password);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Counselor counselor = new Counselor();
+                    counselor.setUserID(rs.getString("ID"));
+                    counselor.setUserName(rs.getString("USERNAME"));
+                    counselor.setFullName(rs.getString("FULLNAME"));
+                    counselor.setUserEmail(rs.getString("USEREMAIL"));
+                    counselor.setUserPassword(rs.getString("USERPASSWORD"));
+                    counselor.setUserPhoneNum(rs.getString("USERPHONENUM"));
+                    counselor.setCounselorID(rs.getString("COUNSELORID"));
+                    counselor.setRoomNo(rs.getString("ROOMNO"));
+                    return counselor;
+                }
+            }
+        }
+        return null;
+    }
+
+    
+>>>>>>> cfe4021dbeaf489fd67b19fec1c67eb660810512
 }
