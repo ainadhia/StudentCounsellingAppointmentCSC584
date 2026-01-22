@@ -42,12 +42,12 @@ public class StudentDashboardServlet extends HttpServlet {
         StudentDashboardDAO dao = new StudentDashboardDAO();
 
         // ✅ ambil counts (upcoming/completed/pending)
-        int upcoming = 0, completed = 0, pending = 0;
+        int upcoming = 0, completed = 0, Pending = 0;
         int[] counts = dao.getCounts(studentId);
         if (counts != null && counts.length >= 3) {
             upcoming = counts[0];
             completed = counts[1];
-            pending = counts[2];
+            Pending = counts[2];
         }
 
         // ✅ recent sessions
@@ -57,7 +57,7 @@ public class StudentDashboardServlet extends HttpServlet {
         request.setAttribute("activeMenu", "dashboard");
         request.setAttribute("upcoming", upcoming);
         request.setAttribute("completed", completed);
-        request.setAttribute("pending", pending);
+        request.setAttribute("Pending", Pending);
         request.setAttribute("recentSessions", recent);
 
         RequestDispatcher rd = request.getRequestDispatcher("studentDashboard.jsp");

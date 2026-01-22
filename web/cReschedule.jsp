@@ -377,11 +377,11 @@
         </style>
     </head>
     <body>
-        <nav class="navbar">
-            <div class="navbar-logo"><span class="logo-text">COUNSELOR SYSTEM</span></div>
+       <nav class="navbar">
+            <div class="navbar-logo"><span class="logo-text">COUNSELOR</span></div>
             <ul class="navbar-menu">
                 <li><a href="counselorDashboard.jsp"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="StudentServlet?action=list"><i class="fas fa-users"></i> List of Students</a></li>
+                <li><a href="listOfStudent.jsp"><i class="fas fa-users"></i> List of Students</a></li>
                 <li class="active"><a href="AppointmentServlet?action=list"><i class="fas fa-calendar-check"></i> Appointment</a></li>
                 <li><a href="SessionServlet?action=viewPage"><i class="fas fa-clock"></i> Session</a></li>
                 <li class="logout"><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Logout</a></li>

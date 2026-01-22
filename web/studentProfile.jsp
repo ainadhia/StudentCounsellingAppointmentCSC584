@@ -42,52 +42,19 @@
 
 <body>
 
-<div class="navbar">
-    <div class="navbar-header">
-        <h2>UiTM Counselling</h2>
-    </div>
-
-    <ul class="navbar-menu">
-        <li>
-            <a href="<%=request.getContextPath()%>/StudentDashboardServlet">
-
-                <span class="menu-text"><span>|</span><span>Dashboard</span></span>
-            </a>
-        </li>
-
-        <li class="dropdown">
-    <a href="#">
-        <span class="menu-text">
-            <span>|</span>
-            <span>Appointment</span>
-        </span>
-        <i class="fa-solid fa-caret-down"></i>
-    </a>
-    <ul class="dropdown-menu">
-        <li><a href="<%=request.getContextPath()%>/StudentAppointmentServlet">Manage Appointment</a></li>
-    </ul>
-</li>
-
-
-        <li>
-            <a href="<%=request.getContextPath()%>/StudentHistoryServlet">
-                <span class="menu-text"><span>|</span><span>History</span></span>
-            </a>
-        </li>
-
-        <li class="active">
-            <a href="<%=request.getContextPath()%>/StudentProfileServlet">
-                <span class="menu-text"><span>|</span><span>Profile</span></span>
-            </a>
-        </li>
-
-        <li class="logout">
-            <a href="<%=request.getContextPath()%>/LogoutServlet">
-                <span class="menu-text"><span>|</span><span>Logout</span></span>
-            </a>
-        </li>
-    </ul>
-</div>
+<nav class="navbar">
+        <div class="navbar-logo">
+            <span class="logo-text">UITM COUNSELLING</span>
+        </div>
+        <ul class="navbar-menu">
+            <li><a  href="<%=request.getContextPath()%>/StudentDashboardServlet"><span class="menu-text" style="font-size: 0.85rem;">| Dashboard</span></a></li>
+            <li><a href="bookAppointmentStudent.jsp"><span class="menu-text" style="font-size: 0.85rem;">| Book Appointment</span></a></li>
+            <li><a href="StudentAppointmentController?action=manage"><span class="menu-text" style="font-size: 0.85rem;">| Manage Appointments</span></a></li>
+            <li><a href="StudentAppointmentServlet?action=history"><span class="menu-text" style="font-size: 0.85rem;">| History</span></a></li>
+            <li><a href="<%=request.getContextPath()%>/StudentProfileServlet"><span class="menu-text" style="font-size: 0.85rem;">| Profile</span></a></li>
+            <li class="active"><a href="<%=request.getContextPath()%>/LogoutServlet"><span class="menu-text" style="font-size: 0.85rem;">| Logout</span></a></li>
+        </ul>
+    </nav>
 
 <div class="main-content">
 

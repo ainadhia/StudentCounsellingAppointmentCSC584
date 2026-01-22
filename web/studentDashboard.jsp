@@ -24,7 +24,7 @@
 
     int upcoming = (request.getAttribute("upcoming") == null) ? 0 : (Integer) request.getAttribute("upcoming");
     int completed = (request.getAttribute("completed") == null) ? 0 : (Integer) request.getAttribute("completed");
-    int pending = (request.getAttribute("pending") == null) ? 0 : (Integer) request.getAttribute("pending");
+    int pending = (request.getAttribute("Pending") == null) ? 0 : (Integer) request.getAttribute("Pending");
 
     List<RecentSession> recent = (List<RecentSession>) request.getAttribute("recentSessions");
 %>
@@ -40,57 +40,19 @@
 </head>
 <body>
 
-<!-- NAVBAR (KEKAL) -->
-<div class="navbar">
-    <div class="navbar-header">
-        <h2>UiTM Counselling</h2>
-    </div>
-
-    <ul class="navbar-menu">
-        <li class="active">
-            <a href="<%=request.getContextPath()%>/StudentDashboardServlet">
-                <span class="menu-text">
-                            <span>|</span>
-                            <span>Dashboard</span>
-                        </span>
-            </a>
-        </li>
-
-        <li class="dropdown">
-            <a href="#"><span class="menu-text">
-                <span>|</span>
-                    <span>Appointment</span>
-                </span></i>  
-                <i class="fa-solid fa-caret-down"></i></a>
-            <ul class="dropdown-menu">
-                <li><a href="<%=request.getContextPath()%>/StudentAppointmentServlet">Manage Appointment</a></li>
-            </ul>
-        </li>
-
-        <li><a href="<%=request.getContextPath()%>/StudentHistoryServlet">
-                <span class="menu-text">
-                            <span>|</span>
-                            <span>History</span>
-                </span>
-            </a>
-        </li>
-        <li><a href="<%=request.getContextPath()%>/StudentProfileServlet">
-                <span class="menu-text">
-                            <span>|</span>
-                            <span>Profile</span>
-                        </span>
-           </a>
-        </li>
-        <li class="logout"><a href="<%=request.getContextPath()%>/LogoutServlet">
-             <span class="menu-text">
-                            <span>|</span>
-                            <span>Logout</span>
-                        </span>   
-            
-            </a>
-        </li>
-    </ul>
-</div>
+    <nav class="navbar">
+        <div class="navbar-logo">
+            <span class="logo-text">UITM COUNSELLING</span>
+        </div>
+        <ul class="navbar-menu">
+            <li  class="active"><a  href="<%=request.getContextPath()%>/StudentDashboardServlet"><span class="menu-text" style="font-size: 0.85rem;">| Dashboard</span></a></li>
+            <li><a href="bookAppointmentStudent.jsp"><span class="menu-text" style="font-size: 0.85rem;">| Book Appointment</span></a></li>
+            <li><a href="StudentAppointmentServlet?action=manage"><span class="menu-text" style="font-size: 0.85rem;">| Manage Appointments</span></a></li>
+            <li><a href="StudentAppointmentServlet?action=history"><span class="menu-text" style="font-size: 0.85rem;">| History</span></a></li>
+            <li><a href="<%=request.getContextPath()%>/StudentProfileServlet"><span class="menu-text" style="font-size: 0.85rem;">| Profile</span></a></li>
+            <li><a href="<%=request.getContextPath()%>/LogoutServlet"><span class="menu-text" style="font-size: 0.85rem;">| Logout</span></a></li>
+        </ul>
+    </nav>
 
 <!-- MAIN CONTENT (NO SIDEBAR) -->
 <div class="main-content">
@@ -130,7 +92,7 @@
     <div class="content-section">
         <div class="section-header">
             <h2>Recent Sessions</h2>
-            <a href="<%=request.getContextPath()%>/StudentHistoryServlet" class="view-all">View Full History →</a>
+            <a href="<%=request.getContextPath()%>/StudentAppointmentServlet?action=history" class="view-all">View Full History →</a>
         </div>
 
         <div class="session-history">
@@ -141,9 +103,9 @@
                         String statusLower = status.toLowerCase();
 
                         String statusClass = "scheduled";
-                        if (statusLower.contains("complete")) statusClass = "completed";
-                        else if (statusLower.contains("pending")) statusClass = "scheduled";
-                        else if (statusLower.contains("cancel")) statusClass = "cancelled";
+                        if (statusLower.contains("Complete")) statusClass = "Complete";
+                        else if (statusLower.contains("Pending")) statusClass = "Pending";
+                        else if (statusLower.contains("Cancel")) statusClass = "Cancel";
 
                         String day = "--", mon = "---";
                         try {

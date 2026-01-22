@@ -15,9 +15,9 @@ public class StudentDashboardDAO {
 
         String sql =
             "SELECT " +
-            "SUM(CASE WHEN APPOINTMENTSTATUS = 'Upcoming' OR APPOINTMENTSTATUS = 'Booked' THEN 1 ELSE 0 END) AS UPCOMING, " +
-            "SUM(CASE WHEN APPOINTMENTSTATUS = 'Completed' THEN 1 ELSE 0 END) AS COMPLETED, " +
-            "SUM(CASE WHEN APPOINTMENTSTATUS = 'Pending' THEN 1 ELSE 0 END) AS PENDING " +
+            "SUM(CASE WHEN APPOINTMENTSTATUS = 'Upcoming' OR APPOINTMENTSTATUS = 'Pending' THEN 1 ELSE 0 END) AS UPCOMING, " +
+            "SUM(CASE WHEN APPOINTMENTSTATUS = 'completed' THEN 1 ELSE 0 END) AS COMPLETED, " +
+            "SUM(CASE WHEN APPOINTMENTSTATUS = 'Pending' THEN 1 ELSE 0 END) AS Pending " +
             "FROM APPOINTMENT WHERE STUDENTID = ?";
 
         try (Connection conn = DBConnection.createConnection();
@@ -28,8 +28,8 @@ public class StudentDashboardDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     counts[0] = rs.getInt("UPCOMING");
-                    counts[1] = rs.getInt("COMPLETED");
-                    counts[2] = rs.getInt("PENDING");
+                    counts[1] = rs.getInt("completed");
+                    counts[2] = rs.getInt("Pending");
                 }
             }
 

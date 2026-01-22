@@ -30,21 +30,19 @@
 
         .auth-container { 
             width: 100%; 
-            max-width: 500px; /* Saiz lebih kecil dan fokus untuk Login */
+            max-width: 500px;
             background: var(--white); 
             border-radius: 20px; 
             box-shadow: 0 15px 35px rgba(66, 20, 95, 0.1); 
             overflow: hidden; 
         }
         
-        /* Container untuk Link Navigasi */
         .auth-footer {
             text-align: center;
-            margin-top: 10px;    /* Jarak dari elemen atas */
-            margin-bottom: 25px; /* Jarak sebelum butang */
+            margin-top: 10px;
+            margin-bottom: 25px;
         }
 
-        /* Garisan Pemisah yang seragam */
         .auth-divider {
             border: 0;
             border-top: 1px solid #eee;
@@ -78,7 +76,7 @@
             text-transform: uppercase;
         }
 
-        .gold-divider { height: 6px; background-color: var(--uitm-gold); width: 100%; }
+        .gold-divider { height: 6px; background-color: #A56CD1; width: 100%; }
 
         .form-content { padding: 40px 50px; }
 
@@ -121,13 +119,12 @@
             box-shadow: 0 0 0 4px rgba(66, 20, 95, 0.05);
         }
 
-        /* Padam ikon mata default pelayar */
         input::-ms-reveal, input::-ms-clear { display: none !important; }
 
         .pass-toggle { 
             position: absolute; 
             right: 15px; 
-            top: 42px; /* Kedudukan selari dengan input */
+            top: 42px;
             cursor: pointer; 
             color: #8B7BA6; 
             z-index: 5;
@@ -195,6 +192,23 @@
             font-size: 0.9em;
         }
         
+        .error-message {
+            color: #d63031;
+            font-size: 0.75em;
+            margin-top: 5px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .form-group.has-error input {
+            border-color: #d63031 !important;
+            background-color: #fff5f5 !important;
+        }
+
+        .form-group.has-error .error-message {
+            display: block;
+        }
+
         .register-link { 
             text-align: center; 
             margin-top: 30px; 
@@ -221,19 +235,17 @@
 </head>
 <body>
     <div class="auth-container">
-        <div class="form-header"><p>UiTM Counselling Login</p></div>
+        <div class="form-header"><p>SIGN IN<br>STUDENT COUNSELLING APPOINTMENTS</p></div>
         <div class="gold-divider"></div>
         
         <div class="form-content">
             
-            <%-- Mesej Berjaya (Diterima dari RegisterServlet) --%>
             <% if ("true".equals(request.getParameter("success"))) { %>
                 <div class="success-banner">
                     <i class="fas fa-check-circle"></i> Registration successful! Please login.
                 </div>
             <% } %>
 
-            <%-- Mesej Ralat (Diterima dari LoginServlet) --%>
             <% 
                 String error = (String) request.getAttribute("errorMessage");
                 if (error != null && !error.isEmpty()) { 
@@ -269,21 +281,18 @@
                     </div>
                 </div>
 
-                <div style="text-align: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
-                    <p style="color: #636e72; font-size: 0.95em;">
                 <div class="auth-footer">
-                        <hr class="auth-divider">
-                        <p>Don't have an account? <a href="register.jsp">Register Now</a></p>
-                    </div>
+                    <hr class="auth-divider">
+                    <p>Don't have an account? <a href="register.jsp">Register Now</a></p>
+                </div>
 
-                    <button type="submit" class="btn-login">Sign In</button>
-                    
-
+                <button type="submit" class="btn-login">Sign In</button>
+            </form>
+            
         </div>
     </div>
 
     <script>
-        // Tukar label secara dinamik mengikut Role
         function updateLabel(role) {
             const label = document.getElementById('idLabel');
             const input = document.getElementById('roleID');
@@ -296,7 +305,44 @@
             }
         }
 
-        // Fungsi sorok/papar password
+        function validateRoleID(element) {
+            const roleID = element.value.trim();
+            const errorDiv = document.getElementById('roleIDError');
+            
+            if (!roleID) {
+                element.parentElement.classList.remove('has-error');
+                errorDiv.textContent = '';
+                return;
+            }
+
+            if (roleID.length < 2) {
+                element.parentElement.classList.add('has-error');
+                errorDiv.textContent = 'Please enter a valid ID';
+            } else {
+                element.parentElement.classList.remove('has-error');
+                errorDiv.textContent = '';
+            }
+        }
+
+        function validatePassword(element) {
+            const password = element.value.trim();
+            const errorDiv = document.getElementById('passwordError');
+            
+            if (!password) {
+                element.parentElement.classList.remove('has-error');
+                errorDiv.textContent = '';
+                return;
+            }
+
+            if (password.length < 6) {
+                element.parentElement.classList.add('has-error');
+                errorDiv.textContent = 'Password must be at least 6 characters';
+            } else {
+                element.parentElement.classList.remove('has-error');
+                errorDiv.textContent = '';
+            }
+        }
+
         function togglePass(id, el) {
             const input = document.getElementById(id);
             if (input.type === "password") { 

@@ -1,3 +1,4 @@
+<%@page import="com.counselling.util.DBConnection"%>
 <%@page import="com.counselling.model.Counselor"%>
 <%@page import="com.counselling.dao.AppointmentDAO"%>
 <%@page import="com.counselling.dao.SessionDAO"%>
@@ -21,7 +22,7 @@
     String fullName = counselor.getFullName();
     int counselorID = counselor.getID();
     
-    AppointmentDAO appointmentDAO = new AppointmentDAO();
+    AppointmentDAO appointmentDAO = new AppointmentDAO(DBConnection.createConnection());
     
     int totalStudents = 0;
     int upcomingAppointments = 0;
@@ -51,13 +52,13 @@
 </head>
     <body>
         <nav class="navbar">
-            <div class="navbar-logo"><span class="logo-text">COUNSELOR SYSTEM</span></div>
+            <div class="navbar-logo"><span class="logo-text">COUNSELOR</span></div>
             <ul class="navbar-menu">
-                <li class="active"><a href="counselorDashboard.jsp">Dashboard</a></li>
-                <li><a href="StudentServlet?action=list">List of Students</a></li>
-                <li><a href="AppointmentServlet?action=list">Appointment</a></li>
-                <li><a href="SessionServlet?action=viewPage">Session</a></li>
-                <li class="logout"><a href="LogoutServlet">Logout</a></li>
+                <li class="active"><a href="counselorDashboard.jsp"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="listOfStudent.jsp"><i class="fas fa-users"></i> List of Students</a></li>
+                <li><a href="AppointmentServlet?action=list"><i class="fas fa-calendar-check"></i> Appointment</a></li>
+                <li><a href="SessionServlet?action=viewPage"><i class="fas fa-clock"></i> Session</a></li>
+                <li class="logout"><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </nav>
 
@@ -150,11 +151,11 @@
                                     <%= studentName != null && !studentName.isEmpty() ? studentName : "Student #" + studentID %>
                                 </h4>
                                 <span class="session-status-badge 
-                                    <%= "booked".equalsIgnoreCase(appointmentStatus) ? "status-booked" : 
+                                    <%= "Pending".equalsIgnoreCase(appointmentStatus) ? "status-booked" : 
                                        "completed".equalsIgnoreCase(appointmentStatus) ? "status-completed" : 
                                        "available".equalsIgnoreCase(sessionStatus) ? "status-available" : "status-other" %>">
                                     <%= 
-                                        "booked".equalsIgnoreCase(appointmentStatus) ? "BOOKED" :
+                                        "Pending".equalsIgnoreCase(appointmentStatus) ? "PENDING" :
                                         "completed".equalsIgnoreCase(appointmentStatus) ? "COMPLETED" :
                                         "available".equalsIgnoreCase(sessionStatus) ? "AVAILABLE" :
                                         appointmentStatus != null ? appointmentStatus.toUpperCase() : "SCHEDULED"
@@ -170,7 +171,7 @@
 
                                 <% if (studentID != null && studentID > 0 && !"available".equalsIgnoreCase(sessionStatus)) { %>
                                 <div class="session-actions">
-                                    <% if ("booked".equalsIgnoreCase(appointmentStatus)) { %>
+                                    <% if ("Pending".equalsIgnoreCase(appointmentStatus)) { %>
                                     <button class="btn-small btn-mark-complete" 
                                             onclick="window.location.href='AppointmentServlet?action=complete&id=<%= sess.get("ID") %>'">
                                         <i class="fas fa-check"></i> Mark Complete

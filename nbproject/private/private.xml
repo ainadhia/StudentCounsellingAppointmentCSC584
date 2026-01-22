@@ -3,21 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/web/manageSessionCounselor.jsp</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/src/java/com/counselling/model/User.java</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/web/register.jsp</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/src/java/com/counselling/util/DBConnection.java</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/build.xml</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/src/java/com/counselling/model/Counselor.java</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/src/java/com/counselling/controller/LoginServlet.java</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/src/java/com/counselling/model/Student.java</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/src/java/com/counselling/dao/UserDAO.java</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/src/java/com/counselling/dao/SessionDAO.java</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/web/register.html</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/web/login.jsp</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/web/index.html</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/src/java/com/counselling/controller/RegisterServlet.java</file>
-            <file>file:/C:/Users/User/Documents/NetBeansProjects/StudentCounsellingAppointmentCSC584/web/sessionEditCounsellor.html</file>
+            <file>file:/C:/Users/Aina/OneDrive%20-%20Universiti%20Teknologi%20MARA/Documents/NetBeansProjects/studentCounsellingAppointment/web/listOfStudent.jsp</file>
+            <file>file:/C:/Users/Aina/OneDrive%20-%20Universiti%20Teknologi%20MARA/Documents/NetBeansProjects/studentCounsellingAppointment/src/java/com/counselling/controller/LoginServlet.java</file>
+            <file>file:/C:/Users/Aina/OneDrive%20-%20Universiti%20Teknologi%20MARA/Documents/NetBeansProjects/studentCounsellingAppointment/src/java/com/counselling/model/AppointmentView.java</file>
+            <file>file:/C:/Users/Aina/OneDrive%20-%20Universiti%20Teknologi%20MARA/Documents/NetBeansProjects/studentCounsellingAppointment/web/login.jsp</file>
+            <file>file:/C:/Users/Aina/OneDrive%20-%20Universiti%20Teknologi%20MARA/Documents/NetBeansProjects/studentCounsellingAppointment/src/java/com/counselling/model/AppointmentStats.java</file>
+            <file>file:/C:/Users/Aina/OneDrive%20-%20Universiti%20Teknologi%20MARA/Documents/NetBeansProjects/studentCounsellingAppointment/src/java/com/counselling/controller/StudentAppointmentServlet.java</file>
+            <file>file:/C:/Users/Aina/OneDrive%20-%20Universiti%20Teknologi%20MARA/Documents/NetBeansProjects/studentCounsellingAppointment/web/counselorDashboard.jsp</file>
+            <file>file:/C:/Users/Aina/OneDrive%20-%20Universiti%20Teknologi%20MARA/Documents/NetBeansProjects/studentCounsellingAppointment/src/java/com/counselling/controller/StudentServlet.java</file>
         </group>
     </open-files>
 </project-private>

@@ -15,37 +15,21 @@ import javax.servlet.http.HttpSession;
 public class LoginServlet extends HttpServlet {
     
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException {
-        
-        // 1. Ambil data dari form login.jsp
-        String roleID = request.getParameter("roleID");
-        String password = request.getParameter("password");
-        String role = request.getParameter("role");  // "S" atau "C"
-
-        UserDAO dao = new UserDAO();
-        
-import javax.servlet.http.*;
-
-@WebServlet("/LoginServlet")
-public class LoginServlet extends HttpServlet {
-
-    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        
         String roleID = request.getParameter("roleID");
         String password = request.getParameter("password");
         String role = request.getParameter("role"); // "S" atau "C"
-
+        
         UserDAO dao = new UserDAO();
-
+        
         try {
             HttpSession session = request.getSession();
-
+            
             if ("S".equals(role)) {
+                // Login Student
                 Student student = dao.authenticate(roleID, password, role);
-
                 if (student != null) {
                     session.setAttribute("user", student);
                     session.setAttribute("role", "S");
@@ -55,7 +39,7 @@ public class LoginServlet extends HttpServlet {
                     request.setAttribute("errorMessage", "Invalid ID or Password. Please try again.");
                     request.getRequestDispatcher("login.jsp").forward(request, response);
                 }
-
+                
             } else if ("C".equals(role)) {
                 // Login Counselor
                 Counselor counselor = dao.authenticateCounselor(roleID, password);
@@ -68,13 +52,13 @@ public class LoginServlet extends HttpServlet {
                     request.setAttribute("errorMessage", "Invalid ID or Password. Please try again.");
                     request.getRequestDispatcher("login.jsp").forward(request, response);
                 }
-
+                
             } else {
                 // Role tidak dikenali
                 request.setAttribute("errorMessage", "Role not recognized.");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             }
-
+            
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("login.jsp?error=server");

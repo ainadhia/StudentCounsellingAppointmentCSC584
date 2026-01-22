@@ -172,7 +172,7 @@ public class StudentProfileDAO {
         Student student = new Student();
         
         // Set properties from ResultSet
-        student.setId(rs.getString(ID));
+        student.setId(rs.getInt(ID));
         student.setUserName(rs.getString(USERNAME));
         student.setFullName(rs.getString(FULLNAME));
         student.setUserEmail(rs.getString(USEREMAIL));

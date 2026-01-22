@@ -9,121 +9,80 @@ import java.util.List;
 import java.util.Map;
 
 public class SessionDAO {
-    
-    public boolean generateDailySlots(int counselorID, String dateStr) throws SQLException {
-        System.out.println("Generating slots for counselor " + counselorID + " on " + dateStr);
-        
-        // Check if slots already exist
-        String checkSql = "SELECT COUNT(*) FROM SESSION WHERE counselorID = ? AND DATE(startTime) = ?";
-        try (Connection conn = DBConnection.createConnection();
-             PreparedStatement ps = conn.prepareStatement(checkSql)) {
-            
-            ps.setInt(1, counselorID);
-            ps.setString(2, dateStr);
-            ResultSet rs = ps.executeQuery();
-            
-            if (rs.next() && rs.getInt(1) > 0) {
-                System.out.println("Slots already exist for this date");
-                return false;
-            }
-        }
-        
-        // Generate default time slots
-        String[][] timeSlots = {
-            {"08:00:00", "09:00:00"},
-            {"09:00:00", "10:00:00"},
-            {"10:00:00", "11:00:00"},
-            {"11:00:00", "12:00:00"},
-            {"14:00:00", "15:00:00"},
-            {"15:00:00", "16:00:00"}
-        };
-        
-        String insertSql = "INSERT INTO SESSION (startTime, endTime, sessionStatus, counselorID) VALUES (?, ?, ?, ?)";
-        
-        try (Connection conn = DBConnection.createConnection();
-             PreparedStatement ps = conn.prepareStatement(insertSql)) {
-            
-            for (String[] slot : timeSlots) {
-                Timestamp startTime = Timestamp.valueOf(dateStr + " " + slot[0]);
-                Timestamp endTime = Timestamp.valueOf(dateStr + " " + slot[1]);
-                
-                ps.setTimestamp(1, startTime);
-                ps.setTimestamp(2, endTime);
-                ps.setString(3, "available");
-                ps.setInt(4, counselorID);
-                
-                ps.addBatch();
-            }
-            
-            int[] results = ps.executeBatch();
-            System.out.println("Generated " + results.length + " slots");
-            return results.length == timeSlots.length;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-
-public class SessionDAO {
     private Connection connection;
+    private boolean useExternalConnection;
     
+    // =================== CONSTRUCTORS ===================
+    
+    // Constructor 1: With external connection
     public SessionDAO(Connection connection) {
         this.connection = connection;
+        this.useExternalConnection = true;
     }
     
-    public void generateDailySlots(int counselorID, String dateStr) throws SQLException {
-        List<Session> existing = getSessionsByDate(counselorID, dateStr);
-        
-        if (!existing.isEmpty()) {
-            return;
+    // Constructor 2: Without parameter - uses DBConnection.createConnection()
+    public SessionDAO() {
+        this.useExternalConnection = false;
+    }
+    
+    // =================== HELPER METHODS ===================
+    
+    private Connection getConnection() throws SQLException {
+        if (useExternalConnection && connection != null) {
+            return connection;
+        } else {
+            return DBConnection.createConnection();
         }
-        
-        String[][] timeSlots = {
-            {"08:00:00", "09:00:00"}, {"09:00:00", "10:00:00"},
-            {"10:00:00", "11:00:00"}, {"11:00:00", "12:00:00"},
-            {"14:00:00", "15:00:00"}, {"15:00:00", "16:00:00"}
-        };
-        
-        String sql = "INSERT INTO APP.SESSION (\"STARTTIME\", \"ENDTIME\", \"SESSIONSTATUS\", \"COUNSELORID\") VALUES (?, ?, ?, ?)";
-        
-        for (String[] slot : timeSlots) {
-            try (PreparedStatement ps = connection.prepareStatement(sql)) {
-                ps.setTimestamp(1, Timestamp.valueOf(dateStr + " " + slot[0]));
-                ps.setTimestamp(2, Timestamp.valueOf(dateStr + " " + slot[1]));
-                ps.setString(3, "available");
-                ps.setInt(4, counselorID);
-                ps.executeUpdate();
+    }
+    
+    // =================== SESSION MANAGEMENT METHODS ===================
+    
+    public int getDefaultCounselorID() throws SQLException {
+        String sql = "SELECT ID FROM USERS WHERE userRole = 'counselor' FETCH FIRST 1 ROWS ONLY";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("ID");
             }
         }
+        return 1; // Default counselor ID jika tak jumpa
     }
     
-    public boolean addSession(Session session) throws SQLException {
-        System.out.println("Adding session for counselor " + session.getCounselorID());
-        
-        String sql = "INSERT INTO SESSION (startTime, endTime, sessionStatus, counselorID) " +
-                     "VALUES (?, ?, ?, ?)";
-        
-        try (Connection conn = DBConnection.createConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
-            ps.setTimestamp(1, session.getStartTime());
-            ps.setTimestamp(2, session.getEndTime());
-            ps.setString(3, session.getSessionStatus());
-            ps.setInt(4, session.getCounselorID());
-            
-            int result = ps.executeUpdate();
-            System.out.println("Session added: " + (result > 0));
-            return result > 0;
-        }
+    // Overloaded method untuk servlet yang tak perlukan counselorID
+    public List<Session> getSessionsByDate(String dateStr) throws SQLException {
+        int defaultCounselorID = getDefaultCounselorID();
+        return getSessionsByDate(defaultCounselorID, dateStr);
     }
     
+    // Method utama dengan 2 parameters
     public List<Session> getSessionsByDate(int counselorID, String dateStr) throws SQLException {
         System.out.println("Getting sessions for counselor " + counselorID + " on " + dateStr);
         
         autoMarkPastSessionsUnavailable(counselorID, dateStr);
         List<Session> sessions = new ArrayList<>();
-        String sql = "SELECT * FROM SESSION WHERE counselorID = ? " +
-                     "AND DATE(startTime) = ? ORDER BY startTime";
         
-        try (Connection conn = DBConnection.createConnection();
+        // Check which table/schema to use
+        String tableName = "SESSION"; // Default
+        String schemaPrefix = ""; // Default empty
+        
+        // Try to detect database type
+        try (Connection conn = getConnection()) {
+            DatabaseMetaData meta = conn.getMetaData();
+            String dbName = meta.getDatabaseProductName();
+            
+            if (dbName.contains("Apache Derby") || dbName.contains("Derby")) {
+                // For Derby database with APP schema
+                tableName = "APP.SESSION";
+                schemaPrefix = "APP.";
+            }
+        } catch (SQLException e) {
+            System.out.println("Warning: Could not detect database type, using default table name");
+        }
+        
+        String sql = "SELECT * FROM " + tableName + " WHERE counselorID = ? AND DATE(startTime) = ? ORDER BY startTime";
+        
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setInt(1, counselorID);
@@ -138,34 +97,26 @@ public class SessionDAO {
                 session.setEndTime(rs.getTimestamp("endTime"));
                 session.setSessionStatus(rs.getString("sessionStatus"));
                 session.setCounselorID(rs.getInt("counselorID"));
-                
-                
                 sessions.add(session);
             }
             
             System.out.println("Found " + sessions.size() + " sessions");
-        String sql = "INSERT INTO APP.SESSION (\"STARTTIME\", \"ENDTIME\", \"SESSIONSTATUS\", \"COUNSELORID\") VALUES (?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setTimestamp(1, session.getStartTime());
-            stmt.setTimestamp(2, session.getEndTime());
-            stmt.setString(3, session.getSessionStatus());
-            stmt.setInt(4, session.getCounselorID());
-            return stmt.executeUpdate() > 0;
         }
+        return sessions;
     }
     
-    // IMPROVED: Now handles all 4 parameters and database column name casing
-    public List<Session> getSessionsByDate(int counselorID, String dateStr) throws SQLException {
+    // Alternative method with quoted column names (for specific database requirements)
+    public List<Session> getSessionsByDateQuoted(int counselorID, String dateStr) throws SQLException {
         List<Session> sessions = new ArrayList<>();
 
-        // Use simple date comparison instead of YEAR/MONTH/DAY functions for better performance
         String sql = "SELECT s.\"SESSIONID\", s.\"STARTTIME\", s.\"ENDTIME\", s.\"SESSIONSTATUS\", s.\"COUNSELORID\" " +
             "FROM APP.SESSION s " +
             "WHERE s.\"COUNSELORID\" = ? " +
             "AND CAST(s.\"STARTTIME\" AS DATE) = CAST(? AS DATE) " +
             "ORDER BY s.\"STARTTIME\"";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, counselorID);
             stmt.setString(2, dateStr + " 00:00:00");
 
@@ -193,7 +144,7 @@ public class SessionDAO {
                      "AND endTime < CURRENT_TIMESTAMP " +
                      "AND sessionStatus NOT IN ('booked', 'completed')";
 
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, counselorID);
@@ -206,10 +157,106 @@ public class SessionDAO {
         }
     }
     
+    public boolean generateDailySlots(int counselorID, String dateStr) throws SQLException {
+        System.out.println("Generating slots for counselor " + counselorID + " on " + dateStr);
+        
+        String checkSql = "SELECT COUNT(*) FROM SESSION WHERE counselorID = ? AND DATE(startTime) = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(checkSql)) {
+            
+            ps.setInt(1, counselorID);
+            ps.setString(2, dateStr);
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next() && rs.getInt(1) > 0) {
+                System.out.println("Slots already exist for this date");
+                return false;
+            }
+        }
+        
+        String[][] timeSlots = {
+            {"08:00:00", "09:00:00"},
+            {"09:00:00", "10:00:00"},
+            {"10:00:00", "11:00:00"},
+            {"11:00:00", "12:00:00"},
+            {"14:00:00", "15:00:00"},
+            {"15:00:00", "16:00:00"}
+        };
+        
+        String insertSql = "INSERT INTO SESSION (startTime, endTime, sessionStatus, counselorID) VALUES (?, ?, ?, ?)";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(insertSql)) {
+            
+            for (String[] slot : timeSlots) {
+                Timestamp startTime = Timestamp.valueOf(dateStr + " " + slot[0]);
+                Timestamp endTime = Timestamp.valueOf(dateStr + " " + slot[1]);
+                
+                ps.setTimestamp(1, startTime);
+                ps.setTimestamp(2, endTime);
+                ps.setString(3, "available");
+                ps.setInt(4, counselorID);
+                
+                ps.addBatch();
+            }
+            
+            int[] results = ps.executeBatch();
+            System.out.println("Generated " + results.length + " slots");
+            return results.length == timeSlots.length;
+        }
+    }
+    
+    // Alternative generate method for specific database
+    public void generateDailySlotsAlt(int counselorID, String dateStr) throws SQLException {
+        List<Session> existing = getSessionsByDateQuoted(counselorID, dateStr);
+        
+        if (!existing.isEmpty()) {
+            return;
+        }
+        
+        String[][] timeSlots = {
+            {"08:00:00", "09:00:00"}, {"09:00:00", "10:00:00"},
+            {"10:00:00", "11:00:00"}, {"11:00:00", "12:00:00"},
+            {"14:00:00", "15:00:00"}, {"15:00:00", "16:00:00"}
+        };
+        
+        String sql = "INSERT INTO APP.SESSION (\"STARTTIME\", \"ENDTIME\", \"SESSIONSTATUS\", \"COUNSELORID\") VALUES (?, ?, ?, ?)";
+        
+        try (Connection conn = getConnection()) {
+            for (String[] slot : timeSlots) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setTimestamp(1, Timestamp.valueOf(dateStr + " " + slot[0]));
+                    ps.setTimestamp(2, Timestamp.valueOf(dateStr + " " + slot[1]));
+                    ps.setString(3, "available");
+                    ps.setInt(4, counselorID);
+                    ps.executeUpdate();
+                }
+            }
+        }
+    }
+    
+    public boolean addSession(Session session) throws SQLException {
+        System.out.println("Adding session for counselor " + session.getCounselorID());
+        
+        String sql = "INSERT INTO SESSION (startTime, endTime, sessionStatus, counselorID) VALUES (?, ?, ?, ?)";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setTimestamp(1, session.getStartTime());
+            ps.setTimestamp(2, session.getEndTime());
+            ps.setString(3, session.getSessionStatus());
+            ps.setInt(4, session.getCounselorID());
+            
+            int result = ps.executeUpdate();
+            System.out.println("Session added: " + (result > 0));
+            return result > 0;
+        }
+    }
+    
     public boolean hasTimeOverlap(int counselorID, String dateStr, String startTimeStr, String endTimeStr) throws SQLException {
         System.out.println("Checking time overlap for " + dateStr + " " + startTimeStr + " - " + endTimeStr);
         
-        // Ensure proper time format
         if (startTimeStr.length() == 5) startTimeStr += ":00";
         if (endTimeStr.length() == 5) endTimeStr += ":00";
         
@@ -219,19 +266,17 @@ public class SessionDAO {
                     "AND ((startTime < TIMESTAMP(?, ?) AND endTime > TIMESTAMP(?, ?)) " +
                     "OR (startTime >= TIMESTAMP(?, ?) AND startTime < TIMESTAMP(?, ?)))";
         
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setInt(1, counselorID);
             ps.setString(2, dateStr);
             
-            // Parameters for first condition
             ps.setString(3, dateStr);
             ps.setString(4, endTimeStr);
             ps.setString(5, dateStr);
             ps.setString(6, startTimeStr);
             
-            // Parameters for second condition
             ps.setString(7, dateStr);
             ps.setString(8, startTimeStr);
             ps.setString(9, dateStr);
@@ -247,25 +292,8 @@ public class SessionDAO {
         return false;
     }
     
-    public Session getSessionById(int sessionID) throws SQLException {
-        String sql = "SELECT * FROM SESSION WHERE sessionID = ?";
-        
-        try (Connection conn = DBConnection.createConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            
-            ps.setInt(1, sessionID);
-            ResultSet rs = ps.executeQuery();
-            
-            if (rs.next()) {
-                Session session = new Session();
-                session.setSessionID(rs.getInt("sessionID"));
-                session.setStartTime(rs.getTimestamp("startTime"));
-                session.setEndTime(rs.getTimestamp("endTime"));
-                session.setSessionStatus(rs.getString("sessionStatus"));
-                session.setCounselorID(rs.getInt("counselorID"));
-                
-                return session;
-    public boolean hasTimeOverlap(int counselorID, String dateStr, String startTimeStr, String endTimeStr) throws SQLException {
+    // Alternative overlap check method
+    public boolean hasTimeOverlapAlt(int counselorID, String dateStr, String startTimeStr, String endTimeStr) throws SQLException {
         Timestamp newStart = Timestamp.valueOf(dateStr + " " + (startTimeStr.length() == 5 ? startTimeStr + ":00" : startTimeStr));
         Timestamp newEnd = Timestamp.valueOf(dateStr + " " + (endTimeStr.length() == 5 ? endTimeStr + ":00" : endTimeStr));
         
@@ -273,7 +301,8 @@ public class SessionDAO {
                      "AND CAST(\"STARTTIME\" AS DATE) = CAST(? AS DATE) " +
                      "AND ((\"STARTTIME\" < ? AND \"ENDTIME\" > ?) OR (\"STARTTIME\" >= ? AND \"STARTTIME\" < ?))";
         
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, counselorID);
             stmt.setString(2, dateStr + " 00:00:00");
             stmt.setTimestamp(3, newEnd);
@@ -286,18 +315,22 @@ public class SessionDAO {
     }
     
     public Session getSessionById(int sessionID) throws SQLException {
-        String sql = "SELECT \"SESSIONID\", \"STARTTIME\", \"ENDTIME\", \"SESSIONSTATUS\", \"COUNSELORID\" FROM APP.SESSION WHERE \"SESSIONID\" = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, sessionID);
-            ResultSet rs = stmt.executeQuery();
+        String sql = "SELECT * FROM SESSION WHERE sessionID = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, sessionID);
+            ResultSet rs = ps.executeQuery();
+            
             if (rs.next()) {
-                Session s = new Session();
-                s.setSessionID(rs.getInt("SESSIONID"));
-                s.setStartTime(rs.getTimestamp("STARTTIME"));
-                s.setEndTime(rs.getTimestamp("ENDTIME"));
-                s.setSessionStatus(rs.getString("SESSIONSTATUS"));
-                s.setCounselorID(rs.getInt("COUNSELORID"));
-                return s;
+                Session session = new Session();
+                session.setSessionID(rs.getInt("sessionID"));
+                session.setStartTime(rs.getTimestamp("startTime"));
+                session.setEndTime(rs.getTimestamp("endTime"));
+                session.setSessionStatus(rs.getString("sessionStatus"));
+                session.setCounselorID(rs.getInt("counselorID"));
+                return session;
             }
         }
         return null;
@@ -308,7 +341,7 @@ public class SessionDAO {
         
         String sql = "UPDATE SESSION SET sessionStatus = ? WHERE sessionID = ?";
         
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setString(1, status);
@@ -317,11 +350,6 @@ public class SessionDAO {
             int result = ps.executeUpdate();
             System.out.println("Status updated: " + (result > 0));
             return result > 0;
-        String sql = "UPDATE APP.SESSION SET \"SESSIONSTATUS\" = ? WHERE \"SESSIONID\" = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, status);
-            stmt.setInt(2, sessionID);
-            return stmt.executeUpdate() > 0;
         }
     }
     
@@ -330,7 +358,7 @@ public class SessionDAO {
         
         String sql = "DELETE FROM SESSION WHERE sessionID = ? AND sessionStatus != 'booked'";
         
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setInt(1, sessionID);
@@ -351,7 +379,7 @@ public class SessionDAO {
                     "ORDER BY s.startTime DESC " +
                     "FETCH FIRST ? ROWS ONLY";
         
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setInt(1, counselorID);
@@ -364,15 +392,13 @@ public class SessionDAO {
                 session.put("startTime", rs.getTime("startTime").toString().substring(0, 5));
                 session.put("endTime", rs.getTime("endTime").toString().substring(0, 5));
                 session.put("status", rs.getString("sessionStatus"));
-                
                 session.put("date", rs.getDate("sessionDate"));
-                
                 sessions.add(session);
             }
         }
         return sessions;
     }
-        
+    
     public List<Session> getAvailableSessions(int counselorID) throws SQLException {
         List<Session> sessions = new ArrayList<>();
         String sql = "SELECT * FROM SESSION WHERE counselorID = ? " +
@@ -380,7 +406,7 @@ public class SessionDAO {
                      "AND startTime >= CURRENT_DATE " +
                      "ORDER BY startTime";
         
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setInt(1, counselorID);
@@ -405,10 +431,10 @@ public class SessionDAO {
         String sql = "SELECT * FROM SESSION WHERE counselorID = ? " +
                      "AND DATE(startTime) = ? " +
                      "AND sessionStatus = 'available' " +
-                     "AND startTime >= CURRENT_TIMESTAMP " +  // Pastikan masa belum berlalu
+                     "AND startTime >= CURRENT_TIMESTAMP " +
                      "ORDER BY startTime";
 
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, counselorID);
@@ -423,15 +449,13 @@ public class SessionDAO {
                 session.setSessionStatus(rs.getString("sessionStatus"));
                 session.setCounselorID(rs.getInt("counselorID"));
                 sessions.add(session);
-        String sql = "DELETE FROM APP.SESSION WHERE \"SESSIONID\" = ? AND \"SESSIONSTATUS\" = 'available'";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, sessionID);
-            return stmt.executeUpdate() > 0;
+            }
         }
+        return sessions;
     }
-
-    // IMPROVED: Updated to use robust date filtering and result mapping
-    public List<Session> getAvailableSessions(int counselorID, String dateStr) throws SQLException {
+    
+    // Alternative method for available sessions
+    public List<Session> getAvailableSessionsAlt(int counselorID, String dateStr) throws SQLException {
         List<Session> sessions = new ArrayList<>();
         String sql = "SELECT \"SESSIONID\", \"STARTTIME\", \"ENDTIME\", \"SESSIONSTATUS\", \"COUNSELORID\" FROM APP.SESSION " +
                      "WHERE \"COUNSELORID\" = ? " +
@@ -440,11 +464,12 @@ public class SessionDAO {
                      "AND DAY(\"STARTTIME\") = ? " +
                      "AND \"SESSIONSTATUS\" = 'available' ORDER BY \"STARTTIME\"";
                      
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             String[] parts = dateStr.split("-");
             
             if (parts.length != 3) {
-                return sessions; // Return empty list if date format is invalid
+                return sessions;
             }
             
             int year = Integer.parseInt(parts[0]);
@@ -468,5 +493,13 @@ public class SessionDAO {
             }
         }
         return sessions;
+    }
+    
+    // =================== CLOSE METHOD (for external connections) ===================
+    
+    public void close() throws SQLException {
+        if (useExternalConnection && connection != null && !connection.isClosed()) {
+            connection.close();
+        }
     }
 }
