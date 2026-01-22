@@ -3,211 +3,244 @@
     Created on : Jan 15, 2026
     Author     : Aina
 --%>
-
 <%@page import="com.counselling.model.Counselor"%>
 <%@page import="com.counselling.model.Session"%>
 <%@page import="java.util.List"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%
     Object userObj = session.getAttribute("user");
-
-    if(userObj == null) {
+    if (userObj == null) {
         response.sendRedirect("login.jsp");
         return;
     }
-
-    if(!(userObj instanceof Counselor)) {
+    
+    if (!(userObj instanceof Counselor)) {
         response.sendRedirect("unauthorized.jsp");
         return;
     }
-
+    
     Counselor counselor = (Counselor) userObj;
-    if (counselor == null) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
-
-    String counselorName = counselor.getUserName();
-    String counselorID = counselor.getCounselorID();
-    
-    session.setAttribute("counselorID", counselorID);
-    
-    String dateParam = request.getParameter("date");
-    java.util.Date tomorrow = new java.util.Date(System.currentTimeMillis() + 86400000);
-    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-    String defaultDate = (dateParam != null && !dateParam.isEmpty()) ? dateParam : sdf.format(tomorrow);
-
-    java.text.SimpleDateFormat displayFormat = new java.text.SimpleDateFormat("EEEE, MMMM d, yyyy");
-    java.util.Date displayDateObj = sdf.parse(defaultDate);
-    String displayDate = displayFormat.format(displayDateObj);
     
     List<Session> sessionsList = (List<Session>) request.getAttribute("sessions");
-    request.setAttribute("sessionsList", sessionsList); 
+    String selectedDate = (String) request.getAttribute("selectedDate");
+    
+    if (selectedDate == null || selectedDate.trim().isEmpty()) {
+        java.util.Date tomorrow = new java.util.Date(System.currentTimeMillis() + 86400000);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        selectedDate = sdf.format(tomorrow);
+    }
+    
+    String displayDate = "";
+    try {
+        SimpleDateFormat displayFormat = new SimpleDateFormat("EEEE, MMMM d, yyyy");
+        java.util.Date displayDateObj = new SimpleDateFormat("yyyy-MM-dd").parse(selectedDate);
+        displayDate = displayFormat.format(displayDateObj);
+    } catch (Exception e) {
+        displayDate = selectedDate;
+    }
 %>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Manage Counseling Sessions</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="stylesheet" href="global-style.css">
+        <style>
+            .date-controls-container { 
+                background: linear-gradient(135deg, #ffffff 0%, #f8f7fc 100%); 
+                border-radius: 20px; 
+                padding: 30px; 
+                margin-bottom: 30px; 
+                box-shadow: 0 8px 25px rgba(203, 149, 232, 0.12); 
+                border: 2px solid #f0ebfa; 
+            }
+            .date-controls-row { 
+                display: flex; 
+                align-items: center; 
+                gap: 20px; 
+                flex-wrap: wrap; 
+            }
+            @keyframes fadeInUp { 
+                from { opacity: 0; transform: translateY(20px); } 
+                to { opacity: 1; transform: translateY(0); } 
+            }
+            .session-card { animation: fadeInUp 0.5s ease forwards; }
+        </style>
     </head>
     <body>
-        <nav class="navbar">
-            <div class="navbar-logo">
-                <span class="logo-text">COUNSELOR SYSTEM</span>
-            </div>
 
+        <nav class="navbar">
+            <div class="navbar-logo"><span class="logo-text">COUNSELOR SYSTEM</span></div>
             <ul class="navbar-menu">
-                <li class="${param.activeTab == 'dashboard' ? 'active' : ''}">
-                    <a href="counselorDashboard.jsp">
-                        <span class="menu-text">
-                            <span>|</span>
-                            <span>Dashboard</span>
-                        </span>
-                    </a>
-                </li>
-                <li class="${param.activeTab == 'students' ? 'active' : ''}">
-                    <a href="StudentController?action=list">
-                        <span class="menu-text">
-                            <span>|</span>
-                            <span>List of Students</span>
-                        </span>
-                    </a>
-                </li>
-                <li class="${param.activeTab == 'appointment' ? 'active' : ''}">
-                    <a href="AppointmentController?action=list">
-                        <span class="menu-text">
-                            <span>|</span>
-                            <span>Appointment</span>
-                        </span>
-                    </a>
-                </li>
-                <li class="${param.activeTab == 'session' ? 'active' : ''}">
-                    <a href="sessionEditCounsellor.jsp">
-                        <span class="menu-text">
-                            <span>|</span>
-                            <span>Session</span>
-                        </span>
-                    </a>
-                </li>
-                <li class="logout">
-                    <a href="index.jsp">
-                        <span class="menu-text">
-                            <span>|</span>
-                            <span>Logout</span>
-                        </span>
-                    </a>
-                </li>
+                <li><a href="counselorDashboard.jsp"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="StudentServlet?action=list"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="AppointmentServlet?action=list"><i class="fas fa-calendar-check"></i> Appointments</a></li>
+                <li class="active"><a href="SessionServlet?action=viewPage"><i class="fas fa-clock"></i> Sessions</a></li>
+                <li class="logout"><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </nav>
 
-        <!-- Main Content -->
         <div class="main-content">
+
             <div class="main-header">
-                <div>
+                <div class="header-left">
                     <h1>Manage Counseling Sessions</h1>
                     <p class="welcome-subtitle">Create, manage, and view available session slots</p>
                 </div>
-                <div class="header-date">
-                    <%= new java.text.SimpleDateFormat("EEEE, MMMM d, yyyy").format(new java.util.Date()) %>
+                <div class="header-date"><%= new SimpleDateFormat("EEEE, MMMM d, yyyy").format(new java.util.Date()) %></div>
+            </div>
+
+            <c:if test="${not empty sessionScope.error}">
+                <div class="content-section" style="border-color: #ffc0cb; background: linear-gradient(135deg, #ffe8ec 0%, #ffd4dd 100%); margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px; color: #be185d;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 1.3em;"></i>
+                        <span style="font-weight: 500;">${sessionScope.error}</span>
+                    </div>
+                </div>
+                <c:remove var="error" scope="session"/>
+            </c:if>
+
+            <c:if test="${not empty sessionScope.message}">
+                <div class="content-section" style="border-color: #a3e8b5; background: linear-gradient(135deg, #d4f4dd 0%, #b8f2c6 100%); margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px; color: #1e7e34;">
+                        <i class="fas fa-check-circle" style="font-size: 1.3em;"></i>
+                        <span style="font-weight: 500;">${sessionScope.message}</span>
+                    </div>
+                </div>
+                <c:remove var="message" scope="session"/>
+            </c:if>
+
+            <div class="date-controls-container">
+                <div class="date-controls-row">
+                    <div style="display: flex; align-items: center; gap: 12px; color: #5D2E8C; font-weight: 600; font-size: 1.1em;">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Select Date:</span>
+                    </div>
+
+                    <form action="SessionServlet" method="GET" id="dateForm" style="display: flex; align-items: center; gap: 15px;">
+                        <input type="hidden" name="action" value="viewPage">
+                        <input type="date" class="date-input" id="sessionDate" name="date" value="${selectedDate}" 
+                               onchange="document.getElementById('dateForm').submit()">
+                        <div id="currentDateDisplay" style="padding: 12px 24px; background: linear-gradient(135deg, #CB95E8 0%, #A56CD1 100%); color: white; border-radius: 25px; font-weight: 600; font-size: 0.95em; box-shadow: 0 4px 12px rgba(203, 149, 232, 0.3);">
+                            ${displayDate}
+                        </div>
+                    </form>
+
+                    <div style="display: flex; gap: 15px; margin-left: auto;">
+                        <button class="add-session-btn" onclick="openAddSessionModal()">
+                            <i class="fas fa-plus"></i> Add Session
+                        </button>
+                        <button class="add-session-btn" onclick="generateDefaultSlots('${selectedDate}')" 
+                                style="background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);">
+                            <i class="fas fa-magic"></i> Generate Slots
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div class="content-section">
-                <!-- Date Selector -->
                 <div class="section-header">
-                    <h4><i class="fas fa-calendar-day"></i> Select Session Date</h4>
-                    <input type="date" 
-                           class="date-input" 
-                           id="sessionDateInput"
-                           value="<%= defaultDate %>"
-                           onchange="loadSessions(this.value)">
-                    <span id="currentDateDisplay"><%= displayDate %></span>
-
-                    <button class="add-session-btn" onclick="toggleSessionForm(true)">
-                        <i class="fas fa-plus-circle"></i> Add New Session
-                    </button>
-
-                    <button class="add-session-btn" onclick="generateDailySlots()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-                        <i class="fas fa-bolt"></i> Generate Daily Slots
-                    </button>
+                    <h2><i class="fas fa-list-alt"></i> Sessions for ${displayDate}</h2>
                 </div>
 
-                <div id="sessionFormContainer" style="display: none;">
-                    <h4><i class="fas fa-clock"></i> Add Custom Session</h4>
-
-                    <div class="form-group">
-                        <label>Start Time</label>
-                        <input type="time" id="formStartTime" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>End Time</label>
-                        <input type="time" id="formEndTime" required>
-                    </div>
-
-                    <div class="form-buttons">
-                        <button class="btn-submit" onclick="createNewSession()">
-                            <i class="fas fa-save"></i> Create Session
-                        </button>
-                        <button class="btn-cancel" onclick="toggleSessionForm(false)">
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
-                    </div>
-                </div>
-
-                <h3 class="sessions-list-header">
-                    <i class="fas fa-list-alt"></i> Sessions for <span id="displayDateText"><%= displayDate %></span>
-                </h3>
-
-                <div class="sessions-grid" id="availableSessionsGrid">
+                <div class="sessions-grid">
                     <c:choose>
-                        <c:when test="${empty sessionsList}">
+                        <c:when test="${empty sessions}">
                             <div class="no-sessions">
                                 <i class="fas fa-calendar-times"></i>
                                 <h3>No Sessions Available</h3>
-                                <p>No counseling sessions available for this date.</p>
-                                <button onclick="generateDailySlots()" class="add-session-btn">
-                                    <i class="fas fa-bolt"></i> Generate Default Slots
-                                </button>
+                                <p>No counseling sessions scheduled for this date. Create new sessions or generate default time slots.</p>
+                                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px;">
+                                    <button class="add-session-btn" onclick="openAddSessionModal()">
+                                        <i class="fas fa-plus"></i> Add Session
+                                    </button>
+                                    <button class="add-session-btn" onclick="generateDefaultSlots('${selectedDate}')" 
+                                            style="background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);">
+                                        <i class="fas fa-magic"></i> Generate Slots
+                                    </button>
+                                </div>
                             </div>
                         </c:when>
                         <c:otherwise>
-                            <c:forEach var="session" items="${sessionsList}">
-                                <div class="session-card">
+                            <c:forEach items="${sessions}" var="sess" varStatus="loop">
+                                <%
+                                    Session sess = (Session) pageContext.getAttribute("sess");
+                                    String startTime = "N/A";
+                                    String endTime = "N/A";
+                                    String duration = "N/A";
+
+                                    try {
+                                        if (sess.getStartTime() != null) {
+                                            startTime = new SimpleDateFormat("hh:mm a").format(sess.getStartTime());
+                                        }
+                                        if (sess.getEndTime() != null) {
+                                            endTime = new SimpleDateFormat("hh:mm a").format(sess.getEndTime());
+                                        }
+
+                                        // Calculate duration
+                                        if (sess.getStartTime() != null && sess.getEndTime() != null) {
+                                            long dur = sess.getEndTime().getTime() - sess.getStartTime().getTime();
+                                            long hours = dur / (1000 * 60 * 60);
+                                            long minutes = (dur % (1000 * 60 * 60)) / (1000 * 60);
+                                            duration = hours + "h " + minutes + "m";
+                                        }
+                                    } catch (Exception e) {
+                                        startTime = "Error";
+                                        endTime = "Error";
+                                    }
+
+                                    String status = sess.getSessionStatus() != null ? sess.getSessionStatus() : "available";
+                                    pageContext.setAttribute("startTime", startTime);
+                                    pageContext.setAttribute("endTime", endTime);
+                                    pageContext.setAttribute("duration", duration);
+                                    pageContext.setAttribute("status", status);
+                                %>
+                                <div class="session-card" style="animation-delay: ${loop.index * 0.1}s; opacity: 0;">
                                     <div class="session-header">
                                         <div class="session-time">
-                                            <i class="fas fa-clock"></i>
-                                            <span class="time-text">
-                                                <c:out value="${session.formattedStartTime}" /> - <c:out value="${session.formattedEndTime}" />
+                                            <i class="fas fa-clock" style="color: #A56CD1;"></i>
+                                            <span class="time-text">${startTime} - ${endTime}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="session-status status-${status}">
+                                        <i class="fas ${status == 'available' ? 'fa-check-circle' : status == 'booked' ? 'fa-calendar-check' : 'fa-ban'}"></i>
+                                        <span>${status.toUpperCase()}</span>
+                                    </div>
+
+                                    <div class="session-info">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                            <span style="color: #8B7BA6; font-size: 0.9em;">
+                                                <i class="fas fa-user-clock"></i> Duration: ${duration}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div class="session-status 
+                                    <div class="session-actions">
                                         <c:choose>
-                                            <c:when test="${session.sessionStatus eq 'available'}">status-available</c:when>
-                                            <c:when test="${session.sessionStatus eq 'booked'}">status-booked</c:when>
-                                            <c:when test="${session.sessionStatus eq 'cancelled'}">status-cancelled</c:when>
-                                            <c:when test="${session.sessionStatus eq 'unavailable'}">status-unavailable</c:when>
-                                            <c:otherwise>status-unknown</c:otherwise>
-                                        </c:choose>">
-                                        <i class="fas 
-                                            <c:choose>
-                                                <c:when test="${session.sessionStatus eq 'available'}">fa-calendar-plus</c:when>
-                                                <c:when test="${session.sessionStatus eq 'booked'}">fa-calendar-check</c:when>
-                                                <c:when test="${session.sessionStatus eq 'cancelled'}">fa-calendar-times</c:when>
-                                                <c:when test="${session.sessionStatus eq 'unavailable'}">fa-calendar-times</c:when>
-                                                <c:otherwise>fa-calendar</c:otherwise>
-                                            </c:choose>">
-                                        </i>
-                                        <span><c:out value="${session.sessionStatus}" /></span>
-                                    </div>
+                                            <c:when test="${status == 'available'}">
+                                                <button class="btn-action btn-unavailable" 
+                                                        onclick="changeStatus(${sess.sessionID}, 'unavailable', '${startTime} - ${endTime}', '${selectedDate}')">
+                                                    <i class="fas fa-ban"></i> Mark Unavailable
+                                                </button>
+                                            </c:when>
+                                            <c:when test="${status == 'unavailable'}">
+                                                <button class="btn-action btn-available" 
+                                                        onclick="changeStatus(${sess.sessionID}, 'available', '${startTime} - ${endTime}', '${selectedDate}')">
+                                                    <i class="fas fa-check"></i> Mark Available
+                                                </button>
+                                            </c:when>
+                                        </c:choose>
 
+                                        <c:if test="${status != 'booked'}">
+                                            <button class="btn-action btn-delete" 
+                                                    onclick="deleteSession(${sess.sessionID}, '${startTime} - ${endTime}', '${selectedDate}')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </c:if>
+                                    </div>
                                 </div>
                             </c:forEach>
                         </c:otherwise>
@@ -216,583 +249,189 @@
             </div>
         </div>
 
-        <!-- Status Change Modal -->
-        <div class="status-modal-overlay" id="statusModalOverlay">
+        <div id="addSessionModal" class="status-modal-overlay">
             <div class="status-modal">
                 <div class="modal-header">
-                    <h3><i class="fas fa-exchange-alt"></i> Toggle Session Status</h3>
-                    <button class="modal-close" onclick="closeStatusModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <h3><i class="fas fa-plus"></i> Add New Session</h3>
+                    <button class="modal-close" onclick="closeAddSessionModal()">&times;</button>
                 </div>
-
                 <div class="modal-body">
-                    <div class="session-info">
-                        <p><strong>Date:</strong> <span id="modalSessionDate"></span></p>
-                        <p><strong>Time:</strong> <span id="modalSessionTime"></span></p>
-                        <p><strong>Current Status:</strong> <span id="modalCurrentStatus"></span></p>
-                    </div>
+                    <form action="SessionServlet" method="POST" onsubmit="return validateSessionTime()">
+                        <input type="hidden" name="action" value="addSession">
+                        <input type="hidden" name="date" value="<%= selectedDate %>">
 
-                    <div class="status-toggle">
-                        <h4>Change to:</h4>
-                        <div class="toggle-options">
-                            <div class="toggle-option active-option" onclick="selectStatus('available')">
-                                <i class="fas fa-calendar-check"></i>
-                                <span>Available</span>
-                                <p class="option-desc">Open for booking</p>
-                            </div>
-
-                            <div class="toggle-option unavailable-option" onclick="selectStatus('unavailable')">
-                                <i class="fas fa-calendar-times"></i>
-                                <span>Unavailable</span>
-                                <p class="option-desc">Not open for booking</p>
-                            </div>
+                        <div class="form-group">
+                            <label for="startTime">Start Time</label>
+                            <input type="time" id="startTime" name="startTime" required>
                         </div>
-                    </div>
 
-                    <input type="hidden" id="selectedSessionId">
-                    <input type="hidden" id="selectedNewStatus" value="">
+                        <div class="form-group">
+                            <label for="endTime">End Time</label>
+                            <input type="time" id="endTime" name="endTime" required>
+                        </div>
 
-                    <div class="modal-actions">
-                        <button class="btn-cancel" onclick="closeStatusModal()">
-                            <i class="fas fa-times"></i> Cancel
-                        </button>
-                        <button class="btn-submit" onclick="updateSessionStatus()" id="updateStatusBtn">
-                            <i class="fas fa-save"></i> Update Status
-                        </button>
-                    </div>
+                        <div class="modal-buttons">
+                            <button type="submit" class="btn-submit">Add Session</button>
+                            <button type="button" class="btn-cancel" onclick="closeAddSessionModal()">Cancel</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
 
-        <!-- Success/Error Popup -->
-        <div class="success-popup-overlay" id="successPopupOverlay">
-            <div class="success-popup-modal" id="successPopupModal">
-                <div class="icon" id="popupIcon"></div>
-                <p id="successMessage">Notification Message</p>
+        <div id="deleteModal" class="status-modal-overlay">
+            <div class="status-modal">
+                <div class="modal-header">
+                    <h3><i class="fas fa-trash"></i> Delete Session</h3>
+                    <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this session?</p>
+                    <form id="deleteForm" action="SessionServlet" method="POST">
+                        <input type="hidden" name="action" value="deleteSession">
+                        <input type="hidden" name="sessionID" id="deleteSessionId">
+                        <input type="hidden" name="date" value="<%= selectedDate %>">
+
+                        <div class="modal-buttons">
+                            <button type="submit" class="btn-delete">Delete</button>
+                            <button type="button" class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div id="statusModal" class="status-modal-overlay">
+            <div class="status-modal">
+                <div class="modal-header">
+                    <h3><i class="fas fa-exchange-alt"></i> Update Status Session</h3>
+                    <button class="modal-close" onclick="closeStatusModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to change the status session?</p>
+                    <form id="changeStatusForm" action="SessionServlet" method="POST">
+                        <input type="hidden" name="action" value="updateStatus">  
+                        <input type="hidden" name="sessionID" id="changeStatusId">
+                        <input type="hidden" name="status" id="changeStatusValue">
+                        <input type="hidden" name="date" value="<%= selectedDate %>">
+
+                        <div class="modal-buttons">
+                            <button type="submit" class="btn-confirm">Change</button>
+                            <button type="button" class="btn-cancel" onclick="closeStatusModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
         <script>
-        let currentSelectedDate = "<%= defaultDate %>";
-        let currentSelectedSessionId = null;
-        let currentSelectedSessionStatus = null;
-
-        const counselorID = "<%= counselorID %>";
-
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log("=== PAGE LOADED ===");
-            console.log("CounselorID: " + counselorID);
-            console.log("Default Date: " + currentSelectedDate);
-
-            const today = new Date();
-            const todayFormatted = today.toISOString().split('T')[0];
-            document.getElementById('sessionDateInput').min = todayFormatted;
-
-            loadSessions(currentSelectedDate);
-
-            const modalOverlay = document.getElementById('statusModalOverlay');
-            if (modalOverlay) {
-                modalOverlay.addEventListener('click', function(event) {
-                    if (event.target === this) {
-                        closeStatusModal();
-                    }
-                });
-            }
-        });
-
-        function loadSessions(selectedDate) {
-            if (!selectedDate) {
-                console.error("No date provided to loadSessions");
-                return;
+            function openAddSessionModal() {
+                document.getElementById('addSessionModal').style.display = 'flex';
             }
 
-            currentSelectedDate = selectedDate;
-            console.log("\n=== LOAD SESSIONS ===");
-            console.log("Loading sessions for date:", selectedDate);
-
-            const dateObj = new Date(selectedDate + 'T00:00:00');
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const formattedDate = dateObj.toLocaleDateString('en-US', options);
-
-            document.getElementById('currentDateDisplay').textContent = formattedDate;
-            document.getElementById('displayDateText').textContent = formattedDate;
-
-            const grid = document.getElementById('availableSessionsGrid');
-            if (!grid) {
-                console.error("Grid element not found!");
-                return;
+            function closeAddSessionModal() {
+                document.getElementById('addSessionModal').style.display = 'none';
             }
 
-            grid.innerHTML = 
-                '<div class="loading-sessions">' +
-                '<i class="fas fa-spinner fa-spin"></i>' +
-                '<p>Loading sessions...</p>' +
-                '</div>';
+            function openDeleteModal(sessionId) {
+                document.getElementById('deleteSessionId').value = sessionId;
+                document.getElementById('deleteModal').style.display = 'flex';
+            }
 
-            const fetchUrl = "<%= request.getContextPath() %>/SessionServlet?" + 
-                            "action=getSessionsByDate&" +
-                            "date=" + selectedDate + "&" +
-                            "counselorID=" + counselorID;
+            function closeDeleteModal() {
+                document.getElementById('deleteModal').style.display = 'none';
+            }
 
-            console.log("Fetching from:", fetchUrl);
+            function changeStatus(sessionId, newStatus, timeSlot, selectedDate) {
+                openStatusModal(sessionId, newStatus);
+            }
 
-            fetch(fetchUrl, {
-                method: 'GET',
-                headers: {
-                    'Cache-Control': 'no-cache',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                console.log("Response status:", response.status, response.statusText);
+            function openStatusModal(sessionId, newStatus) {
+                document.getElementById('changeStatusId').value = sessionId;
+                document.getElementById('changeStatusValue').value = newStatus;
+                document.getElementById('statusModal').style.display = 'flex';
+            }
 
-                if (!response.ok) {
-                    throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-                }
+            function closeStatusModal() {
+                document.getElementById('statusModal').style.display = 'none';
+            }
 
-                return response.json();
-            })
-            .then(data => {
-                console.log("✅ Data received:", data);
-                console.log("   Type:", typeof data);
-                console.log("   Is Array?:", Array.isArray(data));
+            function deleteSession(sessionId) {
+                openDeleteModal(sessionId);
+            }
 
-                renderSessionsWithJS(data);
-            })
-            .catch(error => {
-                console.error('❌ ERROR loading sessions:', error);
+            function generateDefaultSlots() {
+                if (confirm('Generate default time slots for this date?\n\nThis will create sessions from:\n8:00-9:00, 9:00-10:00, 10:00-11:00,\n11:00-12:00, 14:00-15:00, 15:00-16:00')) {
+                    var form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = 'SessionServlet';
 
-                grid.innerHTML = 
-                    '<div class="error-message">' +
-                    '<i class="fas fa-exclamation-circle"></i>' +
-                    '<h4>Unable to Load Sessions</h4>' +
-                    '<p>' + (error.message || 'Failed to load sessions.') + '</p>' +
-                    '<button onclick="loadSessions(\'' + selectedDate + '\')" class="btn-retry">' +
-                    '<i class="fas fa-redo"></i> Try Again' +
-                    '</button>' +
-                    '</div>';
-            });
-        }
+                    form.innerHTML = '<input type="hidden" name="action" value="generateSlots">' +
+                                    '<input type="hidden" name="date" value="<%= selectedDate %>">';
 
-        function renderSessionsWithJS(data) {
-            console.log("🖌️ Raw data received:", data);
-
-            let sessions = data;
-
-            if (data && typeof data === 'object' && !Array.isArray(data)) {
-                if (data.sessions && Array.isArray(data.sessions)) {
-                    sessions = data.sessions;
-                } else if (data.data && Array.isArray(data.data)) {
-                    sessions = data.data;
+                    document.body.appendChild(form);
+                    form.submit();
                 }
             }
 
-            console.log("🖌️ Processed sessions:", sessions);
-            console.log("   Is Array?:", Array.isArray(sessions));
-            console.log("   Length:", Array.isArray(sessions) ? sessions.length : 'N/A');
+            function validateSessionTime() {
+                var startTime = document.getElementById('startTime').value;
+                var endTime = document.getElementById('endTime').value;
 
-            const grid = document.getElementById('availableSessionsGrid');
-            if (!grid) return;
-
-            if (!sessions || !Array.isArray(sessions) || sessions.length === 0) {
-                grid.innerHTML = 
-                    '<div class="no-sessions">' +
-                    '<i class="fas fa-calendar-times"></i>' +
-                    '<h3>No Sessions Available</h3>' +
-                    '<p>No counseling sessions available for this date.</p>' +
-                    '<button onclick="generateDailySlots()" class="add-session-btn">' +
-                    '<i class="fas fa-bolt"></i> Generate Default Slots' +
-                    '</button>' +
-                    '</div>';
-                return;
-            }
-
-            let html = '';
-
-            sessions.forEach(function(session) {
-                console.log("  - Rendering session:", session);
-
-                const status = session.sessionStatus || 'available';
-                const sessionId = session.sessionID || session.id || '';
-
-                let statusClass = '';
-                let statusIcon = '';
-                let statusText = status.toUpperCase();
-
-                switch(status.toLowerCase()) {
-                    case 'available':
-                        statusClass = 'status-available';
-                        statusIcon = 'fa-calendar-check';
-                        break;
-                    case 'booked':
-                        statusClass = 'status-booked';
-                        statusIcon = 'fa-user-check';
-                        break;
-                    case 'cancelled':
-                        statusClass = 'status-cancelled';
-                        statusIcon = 'fa-calendar-times';
-                        break;
-                    case 'unavailable':
-                        statusClass = 'status-unavailable';
-                        statusIcon = 'fa-calendar-times';
-                        break;
-                    default:
-                        statusClass = 'status-available';
-                        statusIcon = 'fa-calendar';
+                if (startTime >= endTime) {
+                    alert('Start time must be before end time!');
+                    return false;
                 }
 
-                const formatTime = function(timeStr) {
-                    if (!timeStr) return '--:--';
-                    try {
-                        const [hours, minutes] = timeStr.split(':');
-                        const hour = parseInt(hours);
-                        const ampm = hour >= 12 ? 'PM' : 'AM';
-                        const hour12 = hour % 12 || 12;
-                        return hour12 + ':' + minutes + ' ' + ampm;
-                    } catch (e) {
-                        return timeStr;
-                    }
-                };
+                return true;
+            }
 
-                const startTime = formatTime(session.startTime);
-                const endTime = formatTime(session.endTime);
+            window.onclick = function(event) {
+                var addModal = document.getElementById('addSessionModal');
+                var deleteModal = document.getElementById('deleteModal');
 
-                html += '<div class="session-card">' +
-                        '<div class="session-header">' +
-                        '<div class="session-time">' +
-                        '<i class="fas fa-clock"></i>' +
-                        '<span class="time-text">' + startTime + ' - ' + endTime + '</span>' +
-                        '</div>' +
-                        '</div>' +
-                        '<div class="session-status ' + statusClass + '" ' +
-                        'onclick="openStatusModal(\'' + sessionId + '\', \'' + status + '\', \'' + startTime + ' - ' + endTime + '\')" ' +
-                        'style="cursor: pointer;">' +
-                        '<i class="fas ' + statusIcon + '"></i>' +
-                        '<span>' + statusText + '</span>' +
-                        '</div>' +
-                        '</div>';
-            });
-
-            grid.innerHTML = html;
-            console.log("✅ Sessions rendered successfully");
-        }
-
-        function openStatusModal(sessionId, currentStatus, sessionTime) {
-            console.log("Opening modal for session:", sessionId, "status:", currentStatus, "time:", sessionTime);
-
-            currentSelectedSessionId = sessionId;
-            currentSelectedSessionStatus = currentStatus;
-
-            const dateObj = new Date(currentSelectedDate + 'T00:00:00');
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const formattedDate = dateObj.toLocaleDateString('en-US', options);
-
-            const modalDateElement = document.getElementById('modalSessionDate');
-            const modalTimeElement = document.getElementById('modalSessionTime');
-            const modalStatusElement = document.getElementById('modalCurrentStatus');
-
-            if (modalDateElement) modalDateElement.textContent = formattedDate;
-            if (modalTimeElement) modalTimeElement.textContent = sessionTime;
-
-            if (modalStatusElement) {
-                modalStatusElement.textContent = currentStatus.toUpperCase();
-                if (currentStatus === 'available') {
-                    modalStatusElement.style.background = 'linear-gradient(135deg, #e8f5e9 0%, #d0efd0 100%)';
-                    modalStatusElement.style.color = '#2e7d32';
-                    modalStatusElement.style.border = '2px solid #c8e6c9';
-                } else {
-                    modalStatusElement.style.background = 'linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%)';
-                    modalStatusElement.style.color = '#d32f2f';
-                    modalStatusElement.style.border = '2px solid #ef9a9a';
+                if (event.target == addModal) {
+                    closeAddSessionModal();
+                }
+                if (event.target == deleteModal) {
+                    closeDeleteModal();
                 }
             }
 
-            const newStatusInput = document.getElementById('selectedNewStatus');
-            const updateBtn = document.getElementById('updateStatusBtn');
+            window.onload = function() {
+                var today = new Date();
+                var dd = String(today.getDate()).padStart(2, '0');
+                var mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+                var yyyy = today.getFullYear();
 
-            if (newStatusInput) newStatusInput.value = '';
-            if (updateBtn) updateBtn.disabled = true;
+                today = yyyy + '-' + mm + '-' + dd;
+                document.getElementById('sessionDate').setAttribute('min', today);
 
-            const optionsElements = document.querySelectorAll('.toggle-option');
-            optionsElements.forEach(option => {
-                option.classList.remove('selected');
-            });
-
-            if (currentStatus === 'available') {
-                selectStatus('unavailable');
-            } else {
-                selectStatus('available');
-            }
-
-            const modalOverlay = document.getElementById('statusModalOverlay');
-            if (modalOverlay) {
-                modalOverlay.style.display = 'flex';
-            }
-        }
-
-        function selectStatus(newStatus) {
-            console.log("Selected status:", newStatus);
-
-            const newStatusInput = document.getElementById('selectedNewStatus');
-            if (newStatusInput) newStatusInput.value = newStatus;
-
-            const optionsElements = document.querySelectorAll('.toggle-option');
-            optionsElements.forEach(option => {
-                option.classList.remove('selected');
-            });
-
-            if (newStatus === 'available') {
-                const availableOption = document.querySelector('.active-option');
-                if (availableOption) availableOption.classList.add('selected');
-            } else {
-                const unavailableOption = document.querySelector('.unavailable-option');
-                if (unavailableOption) unavailableOption.classList.add('selected');
-            }
-
-            const updateBtn = document.getElementById('updateStatusBtn');
-            if (updateBtn) updateBtn.disabled = false;
-        }
-
-        function updateSessionStatus() {
-            const newStatusInput = document.getElementById('selectedNewStatus');
-            if (!newStatusInput) return;
-
-            const newStatus = newStatusInput.value;
-
-            if (!newStatus) {
-                showPopup("Please select a status", "error");
-                return;
-            }
-
-            if (!currentSelectedSessionId) {
-                showPopup("No session selected", "error");
-                return;
-            }
-
-            console.log("Updating session", currentSelectedSessionId, "to", newStatus);
-
-            const updateBtn = document.getElementById('updateStatusBtn');
-            if (updateBtn) {
-                updateBtn.disabled = true;
-                updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-            }
-
-            const url = "<%= request.getContextPath() %>/SessionServlet?" + 
-                       "action=updateStatus&" +
-                       "sessionID=" + currentSelectedSessionId + "&" +
-                       "status=" + newStatus;
-
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                var selectedDate = document.getElementById('sessionDate').value;
+                if (selectedDate < today) {
+                    window.location.href = 'SessionServlet?action=viewPage';
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showPopup("Status updated successfully!", "success");
-                    closeStatusModal();
-                    setTimeout(() => {
-                        loadSessions(currentSelectedDate);
-                    }, 1000);
-                } else {
-                    showPopup(data.message || "Failed to update status", "error");
-                    if (updateBtn) {
-                        updateBtn.disabled = false;
-                        updateBtn.innerHTML = '<i class="fas fa-save"></i> Update Status';
-                    }
+            };
+
+
+            function validateDateSelection(dateInput) {
+                var selectedDate = new Date(dateInput.value);
+                var today = new Date();
+                today.setHours(0, 0, 0, 0); 
+
+                if (selectedDate < today) {
+                    alert('You cannot view past dates!');
+                    var tomorrow = new Date();
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    var dd = String(tomorrow.getDate()).padStart(2, '0');
+                    var mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+                    var yyyy = tomorrow.getFullYear();
+
+                    dateInput.value = yyyy + '-' + mm + '-' + dd;
+                    document.getElementById('dateForm').submit();
+                    return false;
                 }
-            })
-            .catch(error => {
-                console.error("Update error:", error);
-                showPopup("Server error updating status", "error");
-                if (updateBtn) {
-                    updateBtn.disabled = false;
-                    updateBtn.innerHTML = '<i class="fas fa-save"></i> Update Status';
-                }
-            });
-        }
-
-        function closeStatusModal() {
-            const modalOverlay = document.getElementById('statusModalOverlay');
-            if (modalOverlay) {
-                modalOverlay.style.display = 'none';
+                return true;
             }
-            currentSelectedSessionId = null;
-            currentSelectedSessionStatus = null;
-        }
-
-        function generateDailySlots() {
-            console.log("Generating daily slots for date:", currentSelectedDate);
-
-            const url = "<%= request.getContextPath() %>/SessionServlet?" + 
-                       "action=generateSlots&" +
-                       "date=" + currentSelectedDate + "&" +
-                       "counselorID=" + counselorID;
-
-            showPopup("Generating default slots...", "info");
-
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            })
-            .then(response => response.json())
-            .then(result => {
-                console.log("Generate slots result:", result);
-                if (result.success) {
-                    showPopup("Daily slots generated successfully!", "success");
-                    setTimeout(() => {
-                        loadSessions(currentSelectedDate);
-                    }, 1500);
-                } else {
-                    showPopup(result.message || "Failed to generate slots", "error");
-                }
-            })
-            .catch(error => {
-                console.error("Error generating slots:", error);
-                showPopup("Failed to generate slots: " + error.message, "error");
-            });
-        }
-
-        function deleteSession(sessionID) {
-            if (!confirm("Are you sure you want to delete this session?")) {
-                return;
-            }
-
-            console.log("Deleting session:", sessionID);
-
-            const url = "<%= request.getContextPath() %>/SessionServlet?" + 
-                       "action=deleteSession&" +
-                       "sessionID=" + sessionID;
-
-            fetch(url, {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showPopup("Session deleted successfully!", "success");
-                    setTimeout(() => loadSessions(currentSelectedDate), 1000);
-                } else {
-                    showPopup(data.message || "Failed to delete session", "error");
-                }
-            })
-            .catch(error => {
-                console.error("Delete error:", error);
-                showPopup("Server error deleting session", "error");
-            });
-        }
-
-        function toggleSessionForm(show) {
-            const form = document.getElementById('sessionFormContainer');
-
-            if (show) {
-                form.style.display = 'block';
-
-                const now = new Date();
-                let hour = now.getHours();
-                if (hour >= 16 || hour < 8) hour = 16;
-                else hour = hour + 1;
-
-                const defaultStart = String(hour).padStart(2, '0') + ":00";
-                const defaultEnd = String(hour + 1).padStart(2, '0') + ":00";
-
-                document.getElementById('formStartTime').value = defaultStart;
-                document.getElementById('formEndTime').value = defaultEnd;
-
-                form.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                form.style.display = 'none';
-            }
-        }
-
-        function createNewSession() {
-            const startTime = document.getElementById("formStartTime").value;
-            const endTime = document.getElementById("formEndTime").value;
-
-            if (!startTime || !endTime) {
-                showPopup("Please fill all fields", "error");
-                return;
-            }
-
-            if (startTime >= endTime) {
-                showPopup("Start time must be before end time", "error");
-                return;
-            }
-
-            console.log("\n=== CREATE SESSION ===");
-            console.log("Date:", currentSelectedDate);
-            console.log("Time:", startTime, "-", endTime);
-
-            const url = "<%= request.getContextPath() %>/SessionServlet";
-            const params = new URLSearchParams();
-            params.append("action", "addSession");
-            params.append("date", currentSelectedDate);
-            params.append("startTime", startTime);
-            params.append("endTime", endTime);
-            params.append("counselorID", counselorID);
-
-            fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: params.toString()
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("POST Response data:", data);
-
-                if (data.success) {
-                    showPopup("Session created successfully!", "success");
-                    toggleSessionForm(false);
-
-                    setTimeout(() => {
-                        loadSessions(currentSelectedDate);
-                    }, 800);
-                } else {
-                    showPopup(data.message || "Failed to create session", "error");
-                }
-            })
-            .catch(err => {
-                console.error("POST Error:", err);
-                showPopup("Server error. Please try again.", "error");
-            });
-        }
-
-        function showPopup(message, type) {
-            const popup = document.getElementById('successPopupOverlay');
-            const modal = document.getElementById('successPopupModal');
-            const icon = document.getElementById('popupIcon');
-            const msg = document.getElementById('successMessage');
-
-            if (!popup || !modal || !icon || !msg) return;
-
-            if (type === 'error') {
-                icon.className = 'icon error-icon fas fa-exclamation-triangle';
-                msg.style.color = '#dc3545';
-            } else if (type === 'info') {
-                icon.className = 'icon fas fa-info-circle';
-                msg.style.color = '#17a2b8';
-            } else {
-                icon.className = 'icon success-icon fas fa-check-circle';
-                msg.style.color = '#28a745';
-            }
-
-            msg.textContent = message;
-            popup.style.display = 'flex';
-
-            setTimeout(() => modal.classList.add('show'), 10);
-
-            setTimeout(() => {
-                modal.classList.remove('show');
-                setTimeout(() => popup.style.display = 'none', 300);
-            }, 3000);
-        }    
         </script>
     </body>
 </html>

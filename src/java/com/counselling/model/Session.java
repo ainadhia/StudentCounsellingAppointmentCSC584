@@ -8,7 +8,7 @@ public class Session {
     private Timestamp endTime;        
     private String sessionStatus;     
     private int counselorID;
-    private int studentID;         
+    private Integer studentID;         
     
     // Constructors
     public Session() {}
@@ -63,11 +63,11 @@ public class Session {
         this.counselorID = counselorID;
     }
     
-    public int getStudentID() {
+    public Integer getStudentID() {
         return studentID;
     }
     
-    public void setStudentID(int studentID) {
+    public void setStudentID(Integer studentID) {
         this.studentID = studentID;
     }
     
