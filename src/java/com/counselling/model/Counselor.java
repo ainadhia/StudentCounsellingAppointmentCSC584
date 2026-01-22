@@ -1,26 +1,3 @@
-<<<<<<< HEAD
-package com.counselling.model;
-
-public class Counselor extends User {
-    private String counselorID;
-    private String roomNo;
-
-    public Counselor() {
-        super();
-    }
-
-    public String getCounselorID() { return counselorID; }
-    public void setCounselorID(String counselorID) { this.counselorID = counselorID; }
-
-    public String getRoomNo() { return roomNo; }
-    public void setRoomNo(String roomNo) { this.roomNo = roomNo; }
-}
-=======
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.counselling.model;
 
 /**
@@ -51,4 +28,4 @@ public class Counselor extends User {
     public String getRoomNo() { return roomNo; }
     public void setRoomNo(String roomNo) { this.roomNo = roomNo; }
 }
->>>>>>> cfe4021dbeaf489fd67b19fec1c67eb660810512
+

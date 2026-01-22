@@ -1,9 +1,6 @@
 package com.counselling.dao;
 
-<<<<<<< HEAD
-=======
 import com.counselling.model.Counselor;
->>>>>>> cfe4021dbeaf489fd67b19fec1c67eb660810512
 import com.counselling.util.DBConnection;
 import com.counselling.model.Student;
 import java.sql.*;
@@ -13,7 +10,7 @@ public class UserDAO {
     // 1. SEMAKAN KETAT: Username Unik
     public boolean isUsernameTaken(String username) throws SQLException {
         String sql = "SELECT 1 FROM USERS WHERE USERNAME = ?";
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
@@ -28,7 +25,7 @@ public class UserDAO {
         String column = (role.equals("S")) ? "STUDENTID" : "COUNSELORID";
         String sql = "SELECT 1 FROM " + table + " WHERE " + column + " = ?";
         
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -41,7 +38,7 @@ public class UserDAO {
     public boolean registerUser(Student s) throws SQLException {
         Connection conn = null;
         try {
-            conn = DBConnection.createConnection();
+            conn = DBConnection.getConnection();
             conn.setAutoCommit(false); // Mula transaksi
 
             // Simpan ke jadual USERS
@@ -101,7 +98,7 @@ public class UserDAO {
                      "JOIN " + table + " t ON u.ID = t.ID " +
                      "WHERE t." + idCol + " = ? AND u.USERPASSWORD = ?";
 
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
             ps.setString(2, password);
@@ -123,15 +120,13 @@ public class UserDAO {
         }
         return user;
     }
-<<<<<<< HEAD
-=======
        
     public Counselor authenticateCounselor(String id, String password) throws SQLException {
         String sql = "SELECT u.*, c.ROOMNO, c.COUNSELORID " +
                      "FROM USERS u JOIN COUNSELOR c ON u.ID = c.ID " +
                      "WHERE c.COUNSELORID = ? AND u.USERPASSWORD = ?";
 
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
             ps.setString(2, password);
@@ -155,5 +150,4 @@ public class UserDAO {
     }
 
     
->>>>>>> cfe4021dbeaf489fd67b19fec1c67eb660810512
 }

@@ -1,6 +1,7 @@
 package com.counselling.model;
 
 public class Student {
+    private int id;
     private String userName, fullName, userEmail, userPassword, userPhoneNum, role;
     private String studentID, faculty, program; // Untuk Student
     private String counselorID, roomNo;        // Untuk Counselor
@@ -9,6 +10,9 @@ public class Student {
     public Student() {}
 
     // Getter & Setter (Wajib ada semua ini)
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
 

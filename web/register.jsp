@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Account | UiTM Counselling</title>
+    <title>Register Account | Student Counselling Appointment</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -37,14 +37,12 @@
             overflow: hidden; 
         }
         
-        /* Container untuk Link Navigasi */
         .auth-footer {
             text-align: center;
-            margin-top: 10px;    /* Jarak dari elemen atas */
-            margin-bottom: 25px; /* Jarak sebelum butang */
+            margin-top: 10px;
+            margin-bottom: 25px;
         }
 
-        /* Garisan Pemisah yang seragam */
         .auth-divider {
             border: 0;
             border-top: 1px solid #eee;
@@ -77,25 +75,23 @@
             letter-spacing: 1px;
         }
 
-        .gold-divider { height: 6px; background-color: var(--uitm-gold); width: 100%; }
+        .gold-divider { height: 6px; background-color: #A56CD1; width: 100%; }
 
         .form-content { padding: 40px 50px; }
 
-        /* Membetulkan masalah 'bersambung' dengan gap dan margin */
         .form-row { 
             display: flex; 
             flex-wrap: wrap; 
             gap: 25px; 
-            margin-bottom: 25px; /* Jarak antara baris input */
+            margin-bottom: 25px;
         }
 
         .form-group { 
             flex: 1; 
-            min-width: calc(50% - 25px); /* Memastikan 2 input sebaris dengan gap */
+            min-width: calc(50% - 25px);
             position: relative; 
         }
 
-        /* Untuk baris yang ada 3 input (Student ID, Faculty, Program) */
         .dynamic-section .form-row .form-group {
             min-width: calc(33.33% - 25px);
         }
@@ -127,39 +123,23 @@
             box-shadow: 0 0 0 4px rgba(66, 20, 95, 0.05);
         }
 
-        /* CSS Mata Password */
         input::-ms-reveal, input::-ms-clear, input::-webkit-contacts-auto-fill-button { display: none !important; }
 
         .pass-toggle { 
             position: absolute; 
             right: 15px; 
-            top: 38px; /* Laraskan kedudukan ikon mata */
+            top: 38px;
             cursor: pointer; 
             color: #8B7BA6; 
             z-index: 5;
             padding: 5px;
         }
 
-        /* Role Selection Box */
-        .role-selection-box { 
-            background-color: #f8f9ff; 
-            padding: 25px 30px; 
-            border-radius: 15px; 
-            border: 2px dashed var(--border-color); 
-            margin: 30px 0; 
-        }
-
-        .role-selection-box p {
-            margin-bottom: 15px;
-            font-weight: 800;
-        }
-
         .dynamic-section { 
-            display: none; 
             padding: 30px; 
-            background-color: #fffdf5; 
+            background-color: #f8f7fc; 
             border-radius: 15px; 
-            border-left: 6px solid var(--uitm-gold); 
+            border-left: 6px solid #A56CD1; 
             margin-bottom: 30px; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
@@ -186,18 +166,23 @@
             filter: brightness(1.1);
         }
 
-        .error-banner { 
-            background: #fce4e4; 
-            color: #d63031; 
-            padding: 15px; 
-            border-radius: 10px; 
-            border: 1px solid #d63031; 
-            margin-bottom: 25px; 
-            font-weight: bold; 
-            text-align: center; 
+        .error-message {
+            color: #d63031;
+            font-size: 0.75em;
+            margin-top: 5px;
+            display: none;
+            font-weight: 600;
         }
 
-        /* Responsif untuk Mobile */
+        .form-group.has-error input {
+            border-color: #d63031;
+            background-color: #fff5f5;
+        }
+
+        .form-group.has-error .error-message {
+            display: block;
+        }
+
         @media (max-width: 768px) {
             .form-group { min-width: 100%; }
             .dynamic-section .form-row .form-group { min-width: 100%; }
@@ -207,115 +192,116 @@
 </head>
 <body>
     <div class="auth-container">
-        <div class="form-header"><p>UiTM STUDENT COUNSELLING SYSTEM</p></div>
+        <div class="form-header"><p>REGISTRATION<br>STUDENT COUNSELLING APPOINTMENT</p></div>
         <div class="gold-divider"></div>
         <div class="form-content">
-        <% 
-            String error = (String) request.getAttribute("errorMessage");
-            if (error != null && !error.trim().isEmpty()) { 
-        %>
-            <div class="error-banner">
-                <i class="fas fa-exclamation-circle"></i> <%= error %>
-            </div>
-        <% } %>
             <form action="RegisterServlet" method="POST" onsubmit="return validateForm()">
                 <div class="form-row">
-                    <div class="form-group">
+                    <div class="form-group <%= "true".equals(request.getAttribute("usernameError")) ? "has-error" : "" %>">
                         <label>Username *</label>
-                        <input type="text" name="username" placeholder="Enter username" required>
+                        <input type="text" name="username" placeholder="Enter username" required value="<%= request.getParameter("username") != null ? request.getParameter("username") : "" %>">
+                        <% if ("true".equals(request.getAttribute("usernameError"))) { %>
+                            <div class="error-message" style="display: block;"><%= request.getAttribute("usernameErrorMsg") %></div>
+                        <% } else { %>
+                            <div class="error-message"></div>
+                        <% } %>
                     </div>
                     <div class="form-group">
                         <label>Full Name *</label>
-                        <input type="text" name="fullname" placeholder="Enter your full name" required>
+                        <input type="text" name="fullname" placeholder="Enter your full name" required value="<%= request.getParameter("fullname") != null ? request.getParameter("fullname") : "" %>">
                     </div>
                 </div>
 
                 <div class="form-row">
-                    <div class="form-group">
+                    <div class="form-group <%= "true".equals(request.getAttribute("emailError")) ? "has-error" : "" %>">
                         <label>Email Address *</label>
-                        <input type="email" name="email" placeholder="example@uitm.edu.my" required>
+                        <input type="text" name="email" placeholder="example@uitm.edu.my" required value="<%= request.getParameter("email") != null ? request.getParameter("email") : "" %>">
+                        <% if ("true".equals(request.getAttribute("emailError"))) { %>
+                            <div class="error-message" style="display: block;"><%= request.getAttribute("emailErrorMsg") %></div>
+                        <% } else { %>
+                            <div class="error-message"></div>
+                        <% } %>
                     </div>
-                   <div class="form-group">
+                   <div class="form-group <%= "true".equals(request.getAttribute("phoneError")) ? "has-error" : "" %>">
                         <label>Phone Number *</label>
-                        <input type="text" 
-                               name="phone" 
-                               id="phone" 
-                               placeholder="01XXXXXXXX" 
-                               required 
-                               oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                        <input type="text" name="phone" id="phone" placeholder="01XXXXXXXX" required value="<%= request.getParameter("phone") != null ? request.getParameter("phone") : "" %>" oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                        <% if ("true".equals(request.getAttribute("phoneError"))) { %>
+                            <div class="error-message" style="display: block;"><%= request.getAttribute("phoneErrorMsg") %></div>
+                        <% } else { %>
+                            <div class="error-message"></div>
+                        <% } %>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label>Password *</label>
-                        <input type="password" name="password" id="p1" placeholder="••••••••" required>
+                        <input type="password" name="password" id="p1" placeholder="••••••••" required value="<%= request.getParameter("password") != null ? request.getParameter("password") : "" %>">
                         <i class="fas fa-eye-slash pass-toggle" onclick="togglePass('p1', this)"></i>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group <%= "true".equals(request.getAttribute("passwordError")) ? "has-error" : "" %>">
                         <label>Confirm Password *</label>
-                        <input type="password" name="confirm" id="p2" placeholder="••••••••" required>
+                        <input type="password" name="confirm" id="p2" placeholder="••••••••" required value="<%= request.getParameter("confirm") != null ? request.getParameter("confirm") : "" %>">
                         <i class="fas fa-eye-slash pass-toggle" onclick="togglePass('p2', this)"></i>
+                        <% if ("true".equals(request.getAttribute("passwordError"))) { %>
+                            <div class="error-message" style="display: block;"><%= request.getAttribute("passwordErrorMsg") %></div>
+                        <% } else { %>
+                            <div class="error-message"></div>
+                        <% } %>
                     </div>
                 </div>
 
-                <div class="role-selection-box">
-                    <p style="color:var(--text-purple); font-size:0.85em; text-transform:uppercase;">Register As *</p>
-                    <div style="display:flex; gap:50px; margin-top:10px;">
-                        <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
-                            <input type="radio" name="role" value="S" checked onclick="showFields('S')" style="accent-color:var(--uitm-purple); width:18px; height:18px;"> 
-                            Student
-                        </label>
-                        <label style="cursor:pointer; display:flex; align-items:center; gap:8px;">
-                            <input type="radio" name="role" value="C" onclick="showFields('C')" style="accent-color:var(--uitm-purple); width:18px; height:18px;"> 
-                            Counselor
-                        </label>
-                    </div>
-                </div>
-
-                <div id="studentFields" class="dynamic-section" style="display: block;">
+                <!-- Student Information Section -->
+                <div class="dynamic-section">
                     <div class="form-row">
-                        <div class="form-group"><label>Student ID *</label><input type="text" name="studentID" placeholder="202XXXXXXXXX"></div>
-                        <div class="form-group"><label>Faculty *</label><input type="text" name="faculty" placeholder="e.g. FSKM"></div>
-                        <div class="form-group"><label>Program *</label><input type="text" name="program" placeholder="e.g. CS240"></div>
-                    </div>
-                </div>
-
-                <div id="counselorFields" class="dynamic-section">
-                    <div class="form-row">
-                        <div class="form-group"><label>Counselor ID *</label><input type="text" name="counselorID" placeholder="C-XXXX"></div>
-                        <div class="form-group"><label>Room No *</label><input type="text" name="roomNo" placeholder="e.g. G-01"></div>
+                        <div class="form-group <%= "true".equals(request.getAttribute("studentIDError")) ? "has-error" : "" %>">
+                            <label>Student ID *</label>
+                            <input type="text" name="studentID" placeholder="202XXXXXXXXX" required value="<%= request.getParameter("studentID") != null ? request.getParameter("studentID") : "" %>">
+                            <% if ("true".equals(request.getAttribute("studentIDError"))) { %>
+                                <div class="error-message" style="display: block;"><%= request.getAttribute("studentIDErrorMsg") %></div>
+                            <% } else { %>
+                                <div class="error-message"></div>
+                            <% } %>
+                        </div>
+                        <div class="form-group">
+                            <label>Faculty *</label>
+                            <input type="text" name="faculty" placeholder="e.g. FSKM" required value="<%= request.getParameter("faculty") != null ? request.getParameter("faculty") : "" %>">
+                        </div>
+                        <div class="form-group">
+                            <label>Program *</label>
+                            <input type="text" name="program" placeholder="e.g. CS240" required value="<%= request.getParameter("program") != null ? request.getParameter("program") : "" %>">
+                        </div>
                     </div>
                 </div>
                 
-                <div style="text-align: center; margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
-                    <p style="color: #636e72; font-size: 0.95em;">
+                <!-- Hidden role field -->
+                <input type="hidden" name="role" value="S">
+                
                 <div class="auth-footer">
-                        <hr class="auth-divider">
-                        <p>Already have an account? <a href="login.jsp">Sign In Here</a></p>
-                    </div>
+                    <hr class="auth-divider">
+                    <p>Already have an account? <a href="login.jsp">Sign In Here</a></p>
+                </div>
 
-                    <button type="submit" class="btn-register">Complete Registration</button>
+                <button type="submit" class="btn-register">Register</button>
+            </form>
         </div>
     </div>
 
     <script>
-        function showFields(role) {
-            const s = document.getElementById('studentFields');
-            const c = document.getElementById('counselorFields');
-            s.style.display = (role === 'S') ? 'block' : 'none';
-            c.style.display = (role === 'C') ? 'block' : 'none';
-            setRequired(role === 'S' ? 'studentFields' : 'counselorFields', true);
-            setRequired(role === 'S' ? 'counselorFields' : 'studentFields', false);
-        }
-
-        function setRequired(divId, isReq) {
-            const inputs = document.getElementById(divId).getElementsByTagName('input');
-            for(let i=0; i<inputs.length; i++) {
-                if(isReq) inputs[i].setAttribute('required', 'required');
-                else inputs[i].removeAttribute('required');
-            }
-        }
+        // Clear error when user starts editing
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function() {
+                const formGroup = this.closest('.form-group');
+                if (formGroup) {
+                    formGroup.classList.remove('has-error');
+                    const errorMsg = formGroup.querySelector('.error-message');
+                    if (errorMsg) {
+                        errorMsg.style.display = 'none';
+                        errorMsg.textContent = '';
+                    }
+                }
+            });
+        });
 
         function togglePass(id, el) {
             const input = document.getElementById(id);
@@ -329,11 +315,42 @@
         }
 
         function validateForm() {
-            if (document.getElementById("p1").value !== document.getElementById("p2").value) { 
-                alert("Passwords do not match!"); 
-                return false; 
+            let isValid = true;
+            const p1 = document.getElementById('p1');
+            const p2 = document.getElementById('p2');
+            const email = document.querySelector('input[name="email"]');
+            const phone = document.getElementById('phone');
+            
+            // Clear previous errors
+            document.querySelectorAll('.form-group').forEach(group => {
+                group.classList.remove('has-error');
+            });
+
+            // Check email format
+            if (!email.value.includes('@')) {
+                email.parentElement.classList.add('has-error');
+                email.parentElement.querySelector('.error-message').textContent = 'Email must contain @';
+                email.parentElement.querySelector('.error-message').style.display = 'block';
+                isValid = false;
             }
-            return true;
+
+            // Check phone is numbers only and not empty
+            if (phone.value.length === 0 || isNaN(phone.value)) {
+                phone.parentElement.classList.add('has-error');
+                phone.parentElement.querySelector('.error-message').textContent = 'Phone number must contain only numbers';
+                phone.parentElement.querySelector('.error-message').style.display = 'block';
+                isValid = false;
+            }
+
+            // Check passwords match
+            if (p1.value !== p2.value) {
+                p2.parentElement.classList.add('has-error');
+                p2.parentElement.querySelector('.error-message').textContent = 'Passwords do not match';
+                p2.parentElement.querySelector('.error-message').style.display = 'block';
+                isValid = false;
+            }
+
+            return isValid;
         }
     </script>
 </body>

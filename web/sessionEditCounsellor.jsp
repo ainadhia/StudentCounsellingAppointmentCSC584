@@ -63,7 +63,7 @@
 
             <ul class="navbar-menu">
                 <li class="${param.activeTab == 'dashboard' ? 'active' : ''}">
-                    <a href="counselorDashboard.jsp">
+                    <a href="counsellorDashboard.jsp">
                         <span class="menu-text">
                             <span>|</span>
                             <span>Dashboard</span>
@@ -71,7 +71,7 @@
                     </a>
                 </li>
                 <li class="${param.activeTab == 'students' ? 'active' : ''}">
-                    <a href="StudentController?action=list">
+                    <a href="listOfStudent.jsp">
                         <span class="menu-text">
                             <span>|</span>
                             <span>List of Students</span>
@@ -79,7 +79,7 @@
                     </a>
                 </li>
                 <li class="${param.activeTab == 'appointment' ? 'active' : ''}">
-                    <a href="AppointmentController?action=list">
+                    <a href="bookAppointmentCounsellor.jsp">
                         <span class="menu-text">
                             <span>|</span>
                             <span>Appointment</span>
@@ -95,7 +95,7 @@
                     </a>
                 </li>
                 <li class="logout">
-                    <a href="index.jsp">
+                    <a href="logout.jsp">
                         <span class="menu-text">
                             <span>|</span>
                             <span>Logout</span>

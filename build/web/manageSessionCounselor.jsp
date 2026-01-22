@@ -1,11 +1,11 @@
 <%@page import="java.sql.*"%>
 <%@page import="java.util.*"%>
-<%@page import="com.counselling.model.Student"%>
+<%@page import="com.counselling.model.Counselor"%>
 <%@page import="com.counselling.util.DBConnection"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     // Ambil data dari session
-    Student counselor = (Student) session.getAttribute("user");
+    Counselor counselor = (Counselor) session.getAttribute("user");
     String cID = (counselor != null) ? counselor.getCounselorID() : "CNSL2023001";
     String cName = (counselor != null) ? counselor.getFullName() : "Senior Counselor";
 
@@ -26,7 +26,7 @@
         Connection conn = null;
         PreparedStatement ps = null;
         try {
-            conn = DBConnection.createConnection();
+            conn = DBConnection.getConnection();
             String sql = "INSERT INTO SESSION (STARTTIME, ENDTIME, SESSIONSTATUS, COUNSELORID, SESSIONDATE) VALUES (?, ?, 'Available', ?, ?)";
             ps = conn.prepareStatement(sql);
             ps.setString(1, startTime);
@@ -67,16 +67,7 @@
         .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .date-input { padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 200px; }
         
-        /* Grid Layout */
-        .sessions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; margin-top: 30px; }
-        .session-card { background: white; border: 1px solid #e6e1f7; border-radius: 12px; padding: 20px; text-align: center; transition: 0.3s; }
-        .session-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(165,108,209,0.2); }
-        .time-text { font-size: 1.1em; font-weight: 600; color: var(--purple); margin-bottom: 5px; }
-        .duration { color: #8B7BA6; font-size: 0.85em; margin-bottom: 12px; }
-        
-        .badge { padding: 5px 15px; border-radius: 20px; font-size: 0.75em; font-weight: bold; text-transform: uppercase; }
-        .available { background: #e8f6ef; color: #155724; }
-        .booked { background: #fdecea; color: #721c24; }
+        /* Modal and button styles */
         
         .btn-add { background: var(--light-purple); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
         
@@ -119,7 +110,7 @@
                 PreparedStatement psLoad = null;
                 ResultSet rs = null;
                 try {
-                    connLoad = DBConnection.createConnection();
+                    connLoad = DBConnection.getConnection();
                     String query = "SELECT * FROM SESSION WHERE COUNSELORID = ? AND SESSIONDATE = ? ORDER BY STARTTIME ASC";
                     psLoad = connLoad.prepareStatement(query);
                     psLoad.setString(1, cID);
@@ -128,11 +119,17 @@
 
                     while(rs.next()){
                         String status = rs.getString("SESSIONSTATUS");
+                        String statusClass = "available".equalsIgnoreCase(status) ? "available" : "unavailable";
             %>
-                <div class="session-card">
-                    <div class="time-text"><%= rs.getString("STARTTIME").substring(0,5) %> - <%= rs.getString("ENDTIME").substring(0,5) %></div>
-                    <div class="duration">1 hour</div>
-                    <span class="badge <%= status.toLowerCase() %>"><%= status %></span>
+                <div class="session-card <%= statusClass %>">
+                    <div class="session-time">
+                        <i class="fas fa-clock"></i>
+                        <span class="session-time-text"><%= rs.getString("STARTTIME").substring(0,5) %> - <%= rs.getString("ENDTIME").substring(0,5) %></span>
+                    </div>
+                    <div class="session-status-pill <%= statusClass %>">
+                        <i class="fas fa-calendar-check"></i>
+                        <%= "available".equalsIgnoreCase(status) ? "AVAILABLE" : "UNAVAILABLE" %>
+                    </div>
                 </div>
             <%
                     }

@@ -1,6 +1,7 @@
 package com.counselling.controller;
 
 import com.counselling.dao.UserDAO;
+import com.counselling.model.Counselor;
 import com.counselling.model.Student;
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -20,34 +21,45 @@ public class LoginServlet extends HttpServlet {
         // 1. Ambil data dari form login.jsp
         String roleID = request.getParameter("roleID");
         String password = request.getParameter("password");
-        String role = request.getParameter("role");
+        String role = request.getParameter("role");  // "S" atau "C"
 
         UserDAO dao = new UserDAO();
         
         try {
-            // 2. Panggil fungsi authenticate dari UserDAO
-            // Pastikan UserDAO anda mempunyai method authenticate()
-            Student user = dao.authenticate(roleID, password, role);
+            HttpSession session = request.getSession();
 
-            if (user != null) {
-                // 3. Login Berjaya: Cipta Session
-                HttpSession session = request.getSession();
-                session.setAttribute("user", user);
-                session.setAttribute("role", role);
-                session.setAttribute("userName", user.getUserName());
-
-                // 4. Redirect berdasarkan Role dengan parameter loginSuccess
-                if ("S".equals(role)) {
+            if ("S".equals(role)) {
+                // Login Student
+                Student student = dao.authenticate(roleID, password, role);
+                if (student != null) {
+                    session.setAttribute("user", student);
+                    session.setAttribute("role", "S");
+                    session.setAttribute("userName", student.getUserName());
                     response.sendRedirect("studentDashboard.jsp?loginSuccess=true");
-                } else if ("C".equals(role)) {
-                    response.sendRedirect("counselorDashboard.html?loginSuccess=true");
+                } else {
+                    request.setAttribute("errorMessage", "Invalid ID or Password. Please try again.");
+                    request.getRequestDispatcher("login.jsp").forward(request, response);
                 }
+
+            } else if ("C".equals(role)) {
+                // Login Counselor
+                Counselor counselor = dao.authenticateCounselor(roleID, password);
+                if (counselor != null) {
+                    session.setAttribute("user", counselor);
+                    session.setAttribute("role", "C");
+                    session.setAttribute("userName", counselor.getUserName());
+                    response.sendRedirect("counsellorDashboard.jsp?loginSuccess=true");
+                } else {
+                    request.setAttribute("errorMessage", "Invalid ID or Password. Please try again.");
+                    request.getRequestDispatcher("login.jsp").forward(request, response);
+                }
+
             } else {
-                // 5. Login Gagal: Hantar ralat ke login.jsp
-                request.setAttribute("errorMessage", "Invalid ID or Password. Please try again.");
+                // Role tidak dikenali
+                request.setAttribute("errorMessage", "Role not recognized.");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("login.jsp?error=server");
