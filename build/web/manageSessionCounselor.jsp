@@ -1,13 +1,11 @@
 <%@page import="java.sql.*"%>
 <%@page import="java.util.*"%>
-<%@page import="com.counselling.model.Counselor"%>
 <%@page import="com.counselling.model.Student"%>
 <%@page import="com.counselling.util.DBConnection"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
     // Ambil data dari session
     Student counselor = (Student) session.getAttribute("user");
-    Counselor counselor = (Counselor) session.getAttribute("user");
     String cID = (counselor != null) ? counselor.getCounselorID() : "CNSL2023001";
     String cName = (counselor != null) ? counselor.getFullName() : "Senior Counselor";
 
@@ -29,7 +27,6 @@
         PreparedStatement ps = null;
         try {
             conn = DBConnection.createConnection();
-            conn = DBConnection.getConnection();
             String sql = "INSERT INTO SESSION (STARTTIME, ENDTIME, SESSIONSTATUS, COUNSELORID, SESSIONDATE) VALUES (?, ?, 'Available', ?, ?)";
             ps = conn.prepareStatement(sql);
             ps.setString(1, startTime);
@@ -123,7 +120,6 @@
                 ResultSet rs = null;
                 try {
                     connLoad = DBConnection.createConnection();
-                    connLoad = DBConnection.getConnection();
                     String query = "SELECT * FROM SESSION WHERE COUNSELORID = ? AND SESSIONDATE = ? ORDER BY STARTTIME ASC";
                     psLoad = connLoad.prepareStatement(query);
                     psLoad.setString(1, cID);
@@ -137,17 +133,6 @@
                     <div class="time-text"><%= rs.getString("STARTTIME").substring(0,5) %> - <%= rs.getString("ENDTIME").substring(0,5) %></div>
                     <div class="duration">1 hour</div>
                     <span class="badge <%= status.toLowerCase() %>"><%= status %></span>
-                        String statusClass = "available".equalsIgnoreCase(status) ? "available" : "unavailable";
-            %>
-                <div class="session-card <%= statusClass %>">
-                    <div class="session-time">
-                        <i class="fas fa-clock"></i>
-                        <span class="session-time-text"><%= rs.getString("STARTTIME").substring(0,5) %> - <%= rs.getString("ENDTIME").substring(0,5) %></span>
-                    </div>
-                    <div class="session-status-pill <%= statusClass %>">
-                        <i class="fas fa-calendar-check"></i>
-                        <%= "available".equalsIgnoreCase(status) ? "AVAILABLE" : "UNAVAILABLE" %>
-                    </div>
                 </div>
             <%
                     }
