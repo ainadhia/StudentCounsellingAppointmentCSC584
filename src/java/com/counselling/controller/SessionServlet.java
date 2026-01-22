@@ -1,47 +1,8 @@
+
 package com.counselling.controller;
 
 import com.counselling.dao.SessionDAO;
 import com.counselling.model.Session;
-<<<<<<< HEAD
-import com.counselling.model.Student; // Guna model user anda
-import java.io.IOException;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.*;
-
-@WebServlet("/SessionServlet")
-public class SessionServlet extends HttpServlet {
-
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession sessionObj = request.getSession();
-        Student counselor = (Student) sessionObj.getAttribute("user");
-        
-        if (counselor == null) {
-            response.sendRedirect("login.jsp");
-            return;
-        }
-
-        String startTime = request.getParameter("startTime");
-        String endTime = request.getParameter("endTime");
-        
-        Session newSession = new Session();
-        newSession.setStartTime(startTime);
-        newSession.setEndTime(endTime);
-        newSession.setCounselorId(counselor.getCounselorID());
-
-        SessionDAO dao = new SessionDAO();
-        try {
-            if (dao.addSession(newSession)) {
-                response.sendRedirect("manageSessions.jsp?success=added");
-            } else {
-                response.sendRedirect("manageSessions.jsp?error=failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect("manageSessions.jsp?error=exception");
-        }
-    }
-=======
 import com.counselling.model.Counselor;
 import java.io.IOException;
 import java.sql.Connection;
@@ -306,7 +267,6 @@ public class SessionServlet extends HttpServlet {
         try {
             int sessionID = Integer.parseInt(sessionIDStr);
             
-            // Validate status (only allow available/unavailable)
             if (!"available".equalsIgnoreCase(status) && !"unavailable".equalsIgnoreCase(status)) {
                 response.getWriter().write("{\"success\":false,\"message\":\"Invalid status. Only 'available' or 'unavailable' allowed\"}");
                 return;
@@ -459,5 +419,4 @@ public class SessionServlet extends HttpServlet {
     public void destroy() {
         System.out.println("SessionServlet destroyed");
     }
->>>>>>> cfe4021dbeaf489fd67b19fec1c67eb660810512
 }
