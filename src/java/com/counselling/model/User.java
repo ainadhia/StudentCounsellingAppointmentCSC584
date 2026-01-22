@@ -5,12 +5,14 @@
  */
 package com.counselling.model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Aina
  */
-public class User {
-    private String userID;
+public class User implements Serializable {
+    private int ID;
     private String userName;
     private String fullName;
     private String userEmail;
@@ -21,9 +23,9 @@ public class User {
     // Constructors
     public User() {}
     
-    public User(String userID, String userName, String fullName, String userEmail, 
+    public User(int ID, String userName, String fullName, String userEmail, 
                 String userPassword, String userRole, String userPhoneNum) {
-        this.userID = userID;
+        this.ID = ID;
         this.userName = userName;
         this.fullName = fullName;
         this.userEmail = userEmail;
@@ -33,8 +35,8 @@ public class User {
     }
     
     // Getters and Setters
-    public String getUserID() { return userID; }
-    public void setUserID(String userID) { this.userID = userID; }
+    public int getID() { return ID; }
+    public void setID(int ID) { this.ID = ID; }
     
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }

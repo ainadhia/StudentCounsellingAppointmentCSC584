@@ -1,47 +1,43 @@
 package com.counselling.model;
 
-public class Student {
-    private String id,userName, fullName, userEmail, userPassword, userPhoneNum, role;
-    private String studentID, faculty, program; // Untuk Student
-    private String counselorID, roomNo;        // Untuk Counselor
+public class Student extends User {
+    private String studentID, faculty, program; 
 
     // Constructor Kosong
-    public Student() {}
+    public Student() { 
+        super();
+    }
+    
+    public Student(int ID, String userName, String fullName, String userEmail, String userPassword, String userRole, String userPhoneNum, String studentID, String faculty, String program) 
+    {
+        super(ID, userName, fullName, userEmail, userPassword, "student", userPhoneNum);
+        this.studentID = studentID;
+        this.faculty = faculty;
+        this.program = program;
+    }
 
-    // Getter & Setter (Wajib ada semua ini)
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    // Getter & Setter 
+    public String getStudentID() {
+        return studentID;
+    }
 
-    public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
+    public void setStudentID(String studentID) {
+        this.studentID = studentID;
+    }
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getFaculty() {
+        return faculty;
+    }
 
-    public String getUserEmail() { return userEmail; }
-    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
+    }
 
-    public String getUserPassword() { return userPassword; }
-    public void setUserPassword(String userPassword) { this.userPassword = userPassword; }
+    public String getProgram() {
+        return program;
+    }
 
-    public String getUserPhoneNum() { return userPhoneNum; }
-    public void setUserPhoneNum(String userPhoneNum) { this.userPhoneNum = userPhoneNum; }
-
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
-
-    public String getStudentID() { return studentID; }
-    public void setStudentID(String studentID) { this.studentID = studentID; }
-
-    public String getFaculty() { return faculty; }
-    public void setFaculty(String faculty) { this.faculty = faculty; }
-
-    public String getProgram() { return program; }
-    public void setProgram(String program) { this.program = program; }
-
-    public String getCounselorID() { return counselorID; }
-    public void setCounselorID(String counselorID) { this.counselorID = counselorID; }
-
-    public String getRoomNo() { return roomNo; }
-    public void setRoomNo(String roomNo) { this.roomNo = roomNo; }
+    public void setProgram(String program) {
+        this.program = program;
+    }
 }

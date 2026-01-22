@@ -6,6 +6,25 @@ import com.counselling.model.Student;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+@WebServlet("/LoginServlet")
+public class LoginServlet extends HttpServlet {
+    
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        // 1. Ambil data dari form login.jsp
+        String roleID = request.getParameter("roleID");
+        String password = request.getParameter("password");
+        String role = request.getParameter("role");  // "S" atau "C"
+
+        UserDAO dao = new UserDAO();
+        
 import javax.servlet.http.*;
 
 @WebServlet("/LoginServlet")
@@ -31,38 +50,34 @@ public class LoginServlet extends HttpServlet {
                     session.setAttribute("user", student);
                     session.setAttribute("role", "S");
                     session.setAttribute("userName", student.getUserName());
-
-                    // ✅ redirect ikut context path (avoid 404)
-                    response.sendRedirect(request.getContextPath() + "/studentDashboard.jsp?loginSuccess=true");
-                    return;
+                    response.sendRedirect("studentDashboard.jsp?loginSuccess=true");
+                } else {
+                    request.setAttribute("errorMessage", "Invalid ID or Password. Please try again.");
+                    request.getRequestDispatcher("login.jsp").forward(request, response);
                 }
 
-                request.setAttribute("errorMessage", "Invalid ID or Password. Please try again.");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
-
             } else if ("C".equals(role)) {
+                // Login Counselor
                 Counselor counselor = dao.authenticateCounselor(roleID, password);
-
                 if (counselor != null) {
                     session.setAttribute("user", counselor);
                     session.setAttribute("role", "C");
                     session.setAttribute("userName", counselor.getUserName());
-
-                    response.sendRedirect(request.getContextPath() + "/counselorDashboard.jsp?loginSuccess=true");
-                    return;
+                    response.sendRedirect("counselorDashboard.jsp?loginSuccess=true");
+                } else {
+                    request.setAttribute("errorMessage", "Invalid ID or Password. Please try again.");
+                    request.getRequestDispatcher("login.jsp").forward(request, response);
                 }
 
-                request.setAttribute("errorMessage", "Invalid ID or Password. Please try again.");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
-
             } else {
+                // Role tidak dikenali
                 request.setAttribute("errorMessage", "Role not recognized.");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/login.jsp?error=server");
+            response.sendRedirect("login.jsp?error=server");
         }
     }
 }

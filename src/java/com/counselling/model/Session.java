@@ -1,4 +1,4 @@
-package com.counselling.model; 
+package com.counselling.model;
 
 import java.sql.Timestamp;
 
