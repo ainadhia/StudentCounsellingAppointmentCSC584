@@ -1,8 +1,7 @@
 package com.counselling.model;
 
 public class Student {
-    private int id;
-    private String userName, fullName, userEmail, userPassword, userPhoneNum, role;
+    private String id,userName, fullName, userEmail, userPassword, userPhoneNum, role;
     private String studentID, faculty, program; // Untuk Student
     private String counselorID, roomNo;        // Untuk Counselor
 

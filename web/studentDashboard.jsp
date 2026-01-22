@@ -1,138 +1,191 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="com.counselling.model.Student" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.*"%>
+<%@page import="com.counselling.model.Student"%>
+<%@page import="com.counselling.model.RecentSession"%>
+
 <%
-    Student student = (Student) session.getAttribute("user");
-    if (student == null || !"S".equals(session.getAttribute("role"))) {
-        response.sendRedirect("login.jsp");
+    Object obj = session.getAttribute("user");
+    if (obj == null) {
+        response.sendRedirect(request.getContextPath() + "/login.jsp");
         return;
     }
+
+    Student student = (Student) obj;
+
+    String displayName = (student.getFullName() != null && !student.getFullName().trim().isEmpty())
+            ? student.getFullName()
+            : student.getUserName();
+
+    String studentId = student.getStudentID();
+    if (studentId == null || studentId.trim().isEmpty()) studentId = student.getUserName();
+
+    String faculty = (student.getFaculty() != null) ? student.getFaculty() : "-";
+    String program = (student.getProgram() != null) ? student.getProgram() : "-";
+
+    int upcoming = (request.getAttribute("upcoming") == null) ? 0 : (Integer) request.getAttribute("upcoming");
+    int completed = (request.getAttribute("completed") == null) ? 0 : (Integer) request.getAttribute("completed");
+    int pending = (request.getAttribute("pending") == null) ? 0 : (Integer) request.getAttribute("pending");
+
+    List<RecentSession> recent = (List<RecentSession>) request.getAttribute("recentSessions");
 %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard | UiTM Counselling</title>
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="<%=request.getContextPath()%>/student.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="global-style.css">
-    <style>
-        .dashboard-container {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-        .welcome-section {
-            background: linear-gradient(135deg, #42145F 0%, #5D2E8C 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 25px rgba(66, 20, 95, 0.15);
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid #e6e1f7;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            transition: transform 0.3s;
-        }
-        .stat-card:hover { transform: translateY(-5px); }
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            background: #f0ebfa;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #5D2E8C;
-            font-size: 1.5em;
-        }
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        .action-btn {
-            background: white;
-            border: 2px solid #5D2E8C;
-            color: #5D2E8C;
-            padding: 20px;
-            border-radius: 15px;
-            text-decoration: none;
-            font-weight: 700;
-            text-align: center;
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-        .action-btn:hover {
-            background: #5D2E8C;
-            color: white;
-        }
-    </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="navbar-header">
-            <h2>UiTM Counselling</h2>
-        </div>
-        <ul class="navbar-menu">
-            <li class="active"><a href="studentDashboard.jsp"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="viewStudent.jsp?id=<%= student.getStudentID() %>"><i class="fas fa-user"></i> Profile</a></li>
-            <li><a href="logout.jsp"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-        </ul>
-    </nav>
 
-    <div class="dashboard-container">
-        <div class="welcome-section">
-            <h1>Welcome back, <%= student.getFullName() %>!</h1>
-            <p>Your mental well-being is our priority. How can we help you today?</p>
-        </div>
+<!-- NAVBAR (KEKAL) -->
+<div class="navbar">
+    <div class="navbar-header">
+        <h2>UiTM Counselling</h2>
+    </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-                <div>
-                    <h3 style="margin:0;">Next Appointment</h3>
-                    <p style="color:#636e72; margin:5px 0 0;">None scheduled</p>
-                </div>
+    <ul class="navbar-menu">
+        <li class="active">
+            <a href="<%=request.getContextPath()%>/StudentDashboardServlet">
+                <span class="menu-text">
+                            <span>|</span>
+                            <span>Dashboard</span>
+                        </span>
+            </a>
+        </li>
+
+        <li class="dropdown">
+            <a href="#"><span class="menu-text">
+                <span>|</span>
+                    <span>Appointment</span>
+                </span></i>  
+                <i class="fa-solid fa-caret-down"></i></a>
+            <ul class="dropdown-menu">
+                <li><a href="<%=request.getContextPath()%>/StudentAppointmentServlet">Manage Appointment</a></li>
+            </ul>
+        </li>
+
+        <li><a href="<%=request.getContextPath()%>/StudentHistoryServlet">
+                <span class="menu-text">
+                            <span>|</span>
+                            <span>History</span>
+                </span>
+            </a>
+        </li>
+        <li><a href="<%=request.getContextPath()%>/StudentProfileServlet">
+                <span class="menu-text">
+                            <span>|</span>
+                            <span>Profile</span>
+                        </span>
+           </a>
+        </li>
+        <li class="logout"><a href="<%=request.getContextPath()%>/LogoutServlet">
+             <span class="menu-text">
+                            <span>|</span>
+                            <span>Logout</span>
+                        </span>   
+            
+            </a>
+        </li>
+    </ul>
+</div>
+
+<!-- MAIN CONTENT (NO SIDEBAR) -->
+<div class="main-content">
+
+    <header class="main-header">
+        <div>
+            <h1>Welcome, <%= displayName %>!</h1>
+            <p class="welcome-subtitle">Here's your counseling activity summary</p>
+           
+        </div>
+        <!-- tarikh kanan dibuang -->
+    </header>
+
+    <div class="cards">
+        <div class="card">
+            <div class="card-content">
+                <h3>Upcoming Appointment</h3>
+                <p class="card-number"><%= upcoming %></p>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon"><i class="fas fa-id-card"></i></div>
-                <div>
-                    <h3 style="margin:0;">Student ID</h3>
-                    <p style="color:#636e72; margin:5px 0 0;"><%= student.getStudentID() %></p>
-                </div>
+        </div>
+
+        <div class="card">
+            <div class="card-content">
+                <h3>Completed Session</h3>
+                <p class="card-number"><%= completed %></p>
             </div>
         </div>
 
-        <h2 style="color:#42145F; margin-bottom:20px;">Quick Actions</h2>
-        <div class="quick-actions">
-            <a href="#" class="action-btn">
-                <i class="fas fa-calendar-plus fa-2x"></i>
-                Book Appointment
-            </a>
-            <a href="#" class="action-btn">
-                <i class="fas fa-history fa-2x"></i>
-                Session History
-            </a>
-            <a href="viewStudent.jsp?id=<%= student.getStudentID() %>" class="action-btn">
-                <i class="fas fa-user-edit fa-2x"></i>
-                Update Profile
-            </a>
+        <div class="card">
+            <div class="card-content">
+                <h3>Pending</h3>
+                <p class="card-number"><%= pending %></p>
+            </div>
         </div>
     </div>
+
+    <div class="content-section">
+        <div class="section-header">
+            <h2>Recent Sessions</h2>
+            <a href="<%=request.getContextPath()%>/StudentHistoryServlet" class="view-all">View Full History →</a>
+        </div>
+
+        <div class="session-history">
+            <%
+                if (recent != null && !recent.isEmpty()) {
+                    for (RecentSession r : recent) {
+                        String status = (r.getStatus() != null) ? r.getStatus() : "-";
+                        String statusLower = status.toLowerCase();
+
+                        String statusClass = "scheduled";
+                        if (statusLower.contains("complete")) statusClass = "completed";
+                        else if (statusLower.contains("pending")) statusClass = "scheduled";
+                        else if (statusLower.contains("cancel")) statusClass = "cancelled";
+
+                        String day = "--", mon = "---";
+                        try {
+                            java.util.Date d = r.getBookedDate();
+                            if (d != null) {
+                                day = new java.text.SimpleDateFormat("dd").format(d);
+                                mon = new java.text.SimpleDateFormat("MMM").format(d);
+                            }
+                        } catch (Exception ex) {}
+            %>
+
+            <div class="session-item">
+                <div class="session-date">
+                    <span class="date-day"><%= day %></span>
+                    <span class="date-month"><%= mon %></span>
+                </div>
+
+                <div class="session-details">
+                    <h4><%= (r.getDescription() != null ? r.getDescription() : "Counseling Session") %></h4>
+                    <p><strong>Counselor:</strong> <%= (r.getCounselorId() != null ? r.getCounselorId() : "-") %></p>
+                    <p><strong>Room:</strong> <%= (r.getRoomNo() != null ? r.getRoomNo() : "-") %></p>
+                    <p><strong>Time:</strong>
+                        <%= (r.getStartTime() != null ? r.getStartTime() : "-") %> -
+                        <%= (r.getEndTime() != null ? r.getEndTime() : "-") %>
+                    </p>
+
+                    <span class="session-status <%= statusClass %>"><%= status %></span>
+                </div>
+            </div>
+
+            <%
+                    }
+                } else {
+            %>
+                <p class="muted">No sessions today.</p>
+
+            <%
+                }
+            %>
+        </div>
+    </div>
+
+</div>
 </body>
 </html>

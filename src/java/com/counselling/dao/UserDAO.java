@@ -10,7 +10,7 @@ public class UserDAO {
     // 1. SEMAKAN KETAT: Username Unik
     public boolean isUsernameTaken(String username) throws SQLException {
         String sql = "SELECT 1 FROM USERS WHERE USERNAME = ?";
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.createConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
             try (ResultSet rs = ps.executeQuery()) {
@@ -25,7 +25,7 @@ public class UserDAO {
         String column = (role.equals("S")) ? "STUDENTID" : "COUNSELORID";
         String sql = "SELECT 1 FROM " + table + " WHERE " + column + " = ?";
         
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.createConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -38,7 +38,7 @@ public class UserDAO {
     public boolean registerUser(Student s) throws SQLException {
         Connection conn = null;
         try {
-            conn = DBConnection.getConnection();
+            conn = DBConnection.createConnection();
             conn.setAutoCommit(false); // Mula transaksi
 
             // Simpan ke jadual USERS
@@ -94,11 +94,13 @@ public class UserDAO {
         String idCol = (role.equals("S")) ? "STUDENTID" : "COUNSELORID";
         
         // Query JOIN antara USERS dan (STUDENT/COUNSELOR)
-        String sql = "SELECT u.* FROM USERS u " +
-                     "JOIN " + table + " t ON u.ID = t.ID " +
-                     "WHERE t." + idCol + " = ? AND u.USERPASSWORD = ?";
+        String sql = "SELECT u.ID, u.USERNAME, u.FULLNAME, u.USEREMAIL, u.USERPASSWORD, u.USERROLE, u.USERPHONENUM, " +
+                         "       s.STUDENTID, s.FACULTY, s.PROGRAM " +
+                         "FROM USERS u " +
+                         "JOIN STUDENT s ON u.ID = s.ID " +
+                         "WHERE s.STUDENTID = ? AND u.USERPASSWORD = ?";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.createConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
             ps.setString(2, password);
@@ -126,7 +128,7 @@ public class UserDAO {
                      "FROM USERS u JOIN COUNSELOR c ON u.ID = c.ID " +
                      "WHERE c.COUNSELORID = ? AND u.USERPASSWORD = ?";
 
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DBConnection.createConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, id);
             ps.setString(2, password);
@@ -134,7 +136,7 @@ public class UserDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Counselor counselor = new Counselor();
-                    counselor.setUserID(rs.getString("ID"));
+                    counselor.setId(rs.getString("ID"));
                     counselor.setUserName(rs.getString("USERNAME"));
                     counselor.setFullName(rs.getString("FULLNAME"));
                     counselor.setUserEmail(rs.getString("USEREMAIL"));
@@ -147,7 +149,5 @@ public class UserDAO {
             }
         }
         return null;
-    }
-
-    
+    } 
 }

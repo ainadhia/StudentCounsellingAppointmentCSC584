@@ -13,58 +13,18 @@ public class RegisterServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserDAO dao = new UserDAO();
         String username = request.getParameter("username");
-        String email = request.getParameter("email");
-        String phone = request.getParameter("phone");
-        String password = request.getParameter("password");
-        String confirm = request.getParameter("confirm");
         String role = request.getParameter("role");
         String roleID = (role.equals("S")) ? request.getParameter("studentID") : request.getParameter("counselorID");
 
-        boolean hasError = false;
-
         try {
-            // Validate email format
-            if (!email.contains("@")) {
-                request.setAttribute("emailError", "true");
-                request.setAttribute("emailErrorMsg", "Email must contain @");
-                hasError = true;
-            }
-
-            // Validate phone is numbers
-            if (!phone.matches("\\d+")) {
-                request.setAttribute("phoneError", "true");
-                request.setAttribute("phoneErrorMsg", "Phone number must contain only numbers");
-                hasError = true;
-            }
-
-            // Validate passwords match
-            if (!password.equals(confirm)) {
-                request.setAttribute("passwordError", "true");
-                request.setAttribute("passwordErrorMsg", "Passwords do not match");
-                hasError = true;
-            }
-
-            // Check username duplication
+            // Semakan keunikan
             if (dao.isUsernameTaken(username)) {
-                request.setAttribute("usernameError", "true");
-                request.setAttribute("usernameErrorMsg", "Username already taken by another user");
-                hasError = true;
+                request.setAttribute("errorMessage", "Username already exists!");
+                request.getRequestDispatcher("register.jsp").forward(request, response);
+                return;
             }
-
-            // Check ID duplication
             if (dao.isIDTaken(roleID, role)) {
-                request.setAttribute("studentIDError", "true");
-                request.setAttribute("studentIDErrorMsg", "ID Number already registered");
-                hasError = true;
-            }
-
-            if (hasError) {
-                // Keep form data visible
-                request.setAttribute("username", username);
-                request.setAttribute("email", email);
-                request.setAttribute("phone", phone);
-                request.setAttribute("password", password);
-                request.setAttribute("confirm", confirm);
+                request.setAttribute("errorMessage", "ID Number already registered!");
                 request.getRequestDispatcher("register.jsp").forward(request, response);
                 return;
             }
@@ -72,9 +32,9 @@ public class RegisterServlet extends HttpServlet {
             Student s = new Student();
             s.setUserName(username);
             s.setFullName(request.getParameter("fullname"));
-            s.setUserEmail(email);
-            s.setUserPassword(password);
-            s.setUserPhoneNum(phone);
+            s.setUserEmail(request.getParameter("email"));
+            s.setUserPassword(request.getParameter("password"));
+            s.setUserPhoneNum(request.getParameter("phone"));
             s.setRole(role);
 
             if (role.equals("S")) {
