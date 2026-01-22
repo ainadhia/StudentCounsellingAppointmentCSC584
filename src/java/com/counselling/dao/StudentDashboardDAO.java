@@ -20,7 +20,7 @@ public class StudentDashboardDAO {
             "SUM(CASE WHEN APPOINTMENTSTATUS = 'Pending' THEN 1 ELSE 0 END) AS PENDING " +
             "FROM APPOINTMENT WHERE STUDENTID = ?";
 
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, studentId);
@@ -53,7 +53,7 @@ public class StudentDashboardDAO {
         "AND TRUNC(a.BOOKEDDATE) = TRUNC(SYSDATE) " +
         "ORDER BY a.BOOKEDDATE ASC";
 
-    try (Connection conn = DBConnection.createConnection();
+    try (Connection conn = DBConnection.getConnection();
          PreparedStatement ps = conn.prepareStatement(sql)) {
 
         ps.setString(1, studentId);

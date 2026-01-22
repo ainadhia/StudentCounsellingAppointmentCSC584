@@ -33,7 +33,7 @@ public class StudentProfileDAO {
             "JOIN STUDENT s ON u.ID = s.ID " +
             "WHERE s.STUDENTID = ?";
 
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, studentId.trim());
@@ -58,7 +58,7 @@ public class StudentProfileDAO {
             "JOIN STUDENT s ON u.ID = s.ID " +
             "WHERE u.ID = ?";
 
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, userId);
@@ -112,7 +112,7 @@ public class StudentProfileDAO {
 
         Connection conn = null;
         try {
-            conn = DBConnection.createConnection();
+            conn = DBConnection.getConnection();
             conn.setAutoCommit(false);
             
             boolean usersUpdated = false;
@@ -212,7 +212,7 @@ public class StudentProfileDAO {
             throw new IllegalArgumentException("Invalid field name: " + fieldName);
         }
 
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setString(1, safe(fieldValue));
@@ -228,7 +228,7 @@ public class StudentProfileDAO {
     public boolean studentExists(String studentId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM STUDENT WHERE STUDENTID = ?";
         
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setString(1, studentId.trim());
@@ -267,7 +267,7 @@ public class StudentProfileDAO {
         String sql = "SELECT s.STUDENTID FROM STUDENT s " +
                      "JOIN USERS u ON s.ID = u.ID WHERE u.USERNAME = ?";
         
-        try (Connection conn = DBConnection.createConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setString(1, username);
