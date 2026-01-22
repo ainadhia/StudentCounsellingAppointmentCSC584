@@ -95,7 +95,7 @@
         <ul class="navbar-menu">
             <li><a href="counselorDashboard.jsp"><i class="fas fa-home"></i> Dashboard</a></li>
             <li><a href="listOfStudent.jsp"><i class="fas fa-users"></i> List of Students</a></li>
-            <li class="active"><a href="AppointmentManagementServlet?action=list"><i class="fas fa-calendar-check"></i> Appointment</a></li>
+            <li class="active"><a href="AppointmentServlet?action=list"><i class="fas fa-calendar-check"></i> Appointment</a></li>
             <li><a href="SessionServlet?action=viewPage"><i class="fas fa-clock"></i> Session</a></li>
             <li class="logout"><a href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
@@ -184,7 +184,7 @@
         <div class="content-section">
             <div class="section-header">
                 <h4><i class="fas fa-list-alt"></i> Appointments List</h4>
-                <form action="AppointmentManagementServlet" method="get" style="display: flex; gap: 10px;">
+                <form action="AppointmentServlet" method="get" style="display: flex; gap: 10px;">
                     <input type="hidden" name="action" value="list">
                     <select class="date-input" name="statusFilter" onchange="this.form.submit()">
                         <option value="all" ${param.statusFilter == 'all' ? 'selected' : ''}>All Status</option>
@@ -262,7 +262,7 @@
                                             <i class="fas fa-check"></i> Complete
                                         </button>
                                         <c:if test="${appointment.appointmentStatus == 'Pending' || appointment.appointmentStatus == 'booked'}">
-                                            <button class="add-session-btn" onclick="location.href='AppointmentManagementServlet?action=showReschedule&id=${appointment.ID}'" 
+                                            <button class="add-session-btn" onclick="location.href='AppointmentServlet?action=showReschedule&id=${appointment.ID}'" 
                                                     style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); font-size: 0.9em;">
                                                 <i class="fas fa-calendar-alt"></i> Reschedule
                                             </button>
@@ -416,7 +416,7 @@
 
         function confirmComplete() {
             if (currentAppointmentID) {
-                window.location.href = 'AppointmentManagementServlet?action=complete&id=' + currentAppointmentID;
+                window.location.href = 'AppointmenttServlet?action=complete&id=' + currentAppointmentID;
             }
         }
 
@@ -432,7 +432,7 @@
 
         function confirmCancel() {
             if (currentAppointmentID) {
-                window.location.href = 'AppointmentManagementServlet?action=cancel&id=' + currentAppointmentID;
+                window.location.href = 'AppointmentServlet?action=cancel&id=' + currentAppointmentID;
             }
         }
 
