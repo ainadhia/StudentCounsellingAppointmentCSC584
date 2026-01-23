@@ -23,7 +23,7 @@
     String program = (student.getProgram() != null) ? student.getProgram() : "-";
 
     int upcoming = (request.getAttribute("upcoming") == null) ? 0 : (Integer) request.getAttribute("upcoming");
-    int completed = (request.getAttribute("completed") == null) ? 0 : (Integer) request.getAttribute("completed");
+    int completed = (request.getAttribute("complete") == null) ? 0 : (Integer) request.getAttribute("complete");
     int pending = (request.getAttribute("Pending") == null) ? 0 : (Integer) request.getAttribute("Pending");
 
     List<RecentSession> recent = (List<RecentSession>) request.getAttribute("recentSessions");
@@ -91,7 +91,8 @@
 
     <div class="content-section">
         <div class="section-header">
-            <h2>Recent Sessions</h2>
+            <h2>Recent Completed Sessions</h2>
+
             <a href="<%=request.getContextPath()%>/StudentAppointmentServlet?action=history" class="view-all">View Full History →</a>
         </div>
 
@@ -102,10 +103,11 @@
                         String status = (r.getStatus() != null) ? r.getStatus() : "-";
                         String statusLower = status.toLowerCase();
 
-                        String statusClass = "scheduled";
-                        if (statusLower.contains("Complete")) statusClass = "Complete";
-                        else if (statusLower.contains("Pending")) statusClass = "Pending";
-                        else if (statusLower.contains("Cancel")) statusClass = "Cancel";
+String statusClass = "scheduled";
+if (statusLower.contains("complete")) statusClass = "complete";
+else if (statusLower.contains("pending")) statusClass = "pending";
+else if (statusLower.contains("cancel")) statusClass = "cancel";
+
 
                         String day = "--", mon = "---";
                         try {
@@ -140,7 +142,8 @@
                     }
                 } else {
             %>
-                <p class="muted">No sessions today.</p>
+                <p class="muted">No completed sessions yet.</p>
+
 
             <%
                 }

@@ -155,32 +155,6 @@
             <c:remove var="error" scope="session"/>
         </c:if>
 
-        <div class="cards">
-            <div class="card">
-                <div class="card-content">
-                    <h3><i class="fas fa-calendar-week"></i> This Week</h3>
-                    <div class="card-number">${weekCount}</div>
-                    <p class="card-detail">Upcoming sessions</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-content">
-                    <h3><i class="fas fa-clock"></i> Pending</h3>
-                    <div class="card-number">${todayPendingCount}</div>
-                    <p class="card-detail">Awaiting confirmation</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-content">
-                    <h3><i class="fas fa-check-circle"></i> Completed</h3>
-                    <div class="card-number">${weekCompletedCount}</div>
-                    <p class="card-detail">This week</p>
-                </div>
-            </div>
-        </div>
-
         <div class="content-section">
             <div class="section-header">
                 <h4><i class="fas fa-list-alt"></i> Appointments List</h4>
@@ -416,7 +390,7 @@
 
         function confirmComplete() {
             if (currentAppointmentID) {
-                window.location.href = 'AppointmenttServlet?action=complete&id=' + currentAppointmentID;
+                window.location.href = 'AppointmentServlet?action=complete&id=' + currentAppointmentID;
             }
         }
 

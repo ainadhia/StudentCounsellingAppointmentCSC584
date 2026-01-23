@@ -80,8 +80,8 @@ public class StudentAppointmentServlet extends HttpServlet {
             Student student = getStudentFromSession(session);
             Connection conn = DBConnection.getConnection();
             AppointmentDAO appointmentDAO = new AppointmentDAO(conn);
-            // FIXED: Gunakan getStudentIDAsInt() bukan getId()
-            List<AppointmentView> appointments = appointmentDAO.getUpcomingAppointmentsForStudent(student.getStudentIDAsInt());
+            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
+            List<AppointmentView> appointments = appointmentDAO.getUpcomingAppointmentsForStudent(student.getId());
             request.setAttribute("appointments", appointments);
             request.getRequestDispatcher("manageAppointmentStudent.jsp").forward(request, response);
         } catch (Exception e) {
@@ -98,10 +98,10 @@ public class StudentAppointmentServlet extends HttpServlet {
             String search = request.getParameter("q");
             Connection conn = DBConnection.getConnection();
             AppointmentDAO appointmentDAO = new AppointmentDAO(conn);
-            // FIXED: Gunakan getStudentIDAsInt() bukan getId()
-            List<AppointmentView> history = appointmentDAO.getAllAppointmentsForStudent(student.getStudentIDAsInt(), search);
-            // FIXED: Gunakan getStudentIDAsInt() bukan getId()
-            AppointmentStats stats = appointmentDAO.getAppointmentStatsForStudent(student.getStudentIDAsInt());
+            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
+            List<AppointmentView> history = appointmentDAO.getAllAppointmentsForStudent(student.getId(), search);
+            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
+            AppointmentStats stats = appointmentDAO.getAppointmentStatsForStudent(student.getId());
             request.setAttribute("history", history);
             request.setAttribute("stats", stats);
             request.setAttribute("query", search);
@@ -248,8 +248,8 @@ public class StudentAppointmentServlet extends HttpServlet {
             // FIXED: Constructor tanpa parameter
             SessionDAO sessionDAO = new SessionDAO();
 
-            // FIXED: Gunakan getStudentIDAsInt() bukan getId()
-            boolean success = appointmentDAO.cancelAppointment(appointmentID, student.getStudentIDAsInt(), sessionID, sessionDAO);
+            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
+            boolean success = appointmentDAO.cancelAppointment(appointmentID, student.getId(), sessionID, sessionDAO);
             if (success) {
                 request.setAttribute("successMessage", "Appointment cancelled successfully.");
             } else {
@@ -275,8 +275,8 @@ public class StudentAppointmentServlet extends HttpServlet {
             // FIXED: Constructor tanpa parameter
             SessionDAO sessionDAO = new SessionDAO();
 
-            // FIXED: Gunakan getStudentIDAsInt() bukan getId()
-            boolean success = appointmentDAO.rescheduleAppointment(appointmentID, student.getStudentIDAsInt(), oldSessionID, newSessionID, sessionDAO);
+            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
+            boolean success = appointmentDAO.rescheduleAppointment(appointmentID, student.getId(), oldSessionID, newSessionID, sessionDAO);
             if (success) {
                 request.setAttribute("successMessage", "Appointment rescheduled.");
             } else {
@@ -300,8 +300,8 @@ public class StudentAppointmentServlet extends HttpServlet {
             // FIXED: Constructor tanpa parameter
             SessionDAO sessionDAO = new SessionDAO();
 
-            // FIXED: Gunakan getStudentIDAsInt() bukan getId()
-            boolean success = appointmentDAO.deleteAppointment(sessionID, student.getStudentIDAsInt(), sessionDAO);
+            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
+            boolean success = appointmentDAO.deleteAppointment(sessionID, student.getId(), sessionDAO);
             if (success) {
                 request.setAttribute("successMessage", "Appointment deleted.");
             } else {

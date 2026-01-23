@@ -56,7 +56,7 @@ public class StudentDashboardServlet extends HttpServlet {
         // hantar ke JSP
         request.setAttribute("activeMenu", "dashboard");
         request.setAttribute("upcoming", upcoming);
-        request.setAttribute("completed", completed);
+        request.setAttribute("complete", completed);
         request.setAttribute("Pending", Pending);
         request.setAttribute("recentSessions", recent);
 

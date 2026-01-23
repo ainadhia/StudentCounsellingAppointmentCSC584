@@ -34,7 +34,7 @@ public class LoginServlet extends HttpServlet {
                     session.setAttribute("user", student);
                     session.setAttribute("role", "S");
                     session.setAttribute("userName", student.getUserName());
-                    response.sendRedirect("studentDashboard.jsp?loginSuccess=true");
+                    response.sendRedirect("StudentDashboardServlet?loginSuccess=true");
                 } else {
                     request.setAttribute("errorMessage", "Invalid ID or Password. Please try again.");
                     request.getRequestDispatcher("login.jsp").forward(request, response);
