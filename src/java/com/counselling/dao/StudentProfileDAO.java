@@ -6,7 +6,6 @@ import java.sql.*;
 
 public class StudentProfileDAO {
 
-    // Constants for column names to avoid typos
     private static final String ID = "ID";
     private static final String USERNAME = "USERNAME";
     private static final String FULLNAME = "FULLNAME";
@@ -18,9 +17,7 @@ public class StudentProfileDAO {
     private static final String FACULTY = "FACULTY";
     private static final String PROGRAM = "PROGRAM";
 
-    /**
-     * Retrieves a student by student ID with better error handling
-     */
+    
     public Student getStudentByStudentId(String studentId) throws SQLException {
         if (studentId == null || studentId.trim().isEmpty()) {
             throw new IllegalArgumentException("Student ID cannot be null or empty");
@@ -47,9 +44,7 @@ public class StudentProfileDAO {
         return null;
     }
 
-    /**
-     * Alternative method to get student by user ID (if needed)
-     */
+    
     public Student getStudentById(String userId) throws SQLException {
         String sql =
             "SELECT u.ID, u.USERNAME, u.FULLNAME, u.USEREMAIL, u.USERPASSWORD, " +
@@ -72,9 +67,6 @@ public class StudentProfileDAO {
         return null;
     }
 
-    /**
-     * Updates student profile with validation
-     */
     public boolean updateStudentProfile(String studentId,
                                         String fullName,
                                         String userPhoneNum,
@@ -82,7 +74,6 @@ public class StudentProfileDAO {
                                         String faculty,
                                         String program) throws SQLException {
         
-        // Input validation
         if (studentId == null || studentId.trim().isEmpty()) {
             throw new IllegalArgumentException("Student ID cannot be null or empty");
         }
@@ -95,20 +86,19 @@ public class StudentProfileDAO {
             throw new IllegalArgumentException("Email cannot be null or empty");
         }
 
-        // Email validation (basic)
         if (!isValidEmail(userEmail)) {
             throw new IllegalArgumentException("Invalid email format");
         }
 
-        String sqlUsers =
-            "UPDATE USERS u " +
-            "SET u.FULLNAME = ?, u.USERPHONENUM = ?, u.USEREMAIL = ? " +
-            "WHERE u.ID = (SELECT s.ID FROM STUDENT s WHERE s.STUDENTID = ?)";
+        String sqlUsers = "UPDATE USERS u " +
+                           "SET u.FULLNAME = ?, u.USERPHONENUM = ?, u.USEREMAIL = ? " +
+                           "WHERE u.ID = (SELECT s.ID FROM STUDENT s WHERE s.STUDENTID = ?)"; 
+                            
 
-        String sqlStudent =
-            "UPDATE STUDENT " +
-            "SET FACULTY = ?, PROGRAM = ? " +
-            "WHERE STUDENTID = ?";
+        String sqlStudent = "UPDATE STUDENT " +
+                            "SET FACULTY = ?, PROGRAM = ? " +
+                            "WHERE STUDENTID = ?";
+            
 
         Connection conn = null;
         try {
@@ -118,7 +108,6 @@ public class StudentProfileDAO {
             boolean usersUpdated = false;
             boolean studentUpdated = false;
 
-            // Update USERS table
             try (PreparedStatement ps = conn.prepareStatement(sqlUsers)) {
                 ps.setString(1, safe(fullName));
                 ps.setString(2, safe(userPhoneNum));
@@ -127,7 +116,6 @@ public class StudentProfileDAO {
                 usersUpdated = ps.executeUpdate() > 0;
             }
 
-            // Update STUDENT table
             try (PreparedStatement ps = conn.prepareStatement(sqlStudent)) {
                 ps.setString(1, safe(faculty));
                 ps.setString(2, safe(program));
@@ -147,31 +135,25 @@ public class StudentProfileDAO {
                 try {
                     conn.rollback();
                 } catch (SQLException ex) {
-                    // Log rollback error
                     ex.printStackTrace();
                 }
             }
-            throw e; // Re-throw for higher level handling
+            throw e;
         } finally {
             if (conn != null) {
                 try {
-                    conn.setAutoCommit(true); // Reset auto-commit
+                    conn.setAutoCommit(true);
                     conn.close();
                 } catch (SQLException e) {
-                    // Log closing error
                     e.printStackTrace();
                 }
             }
         }
     }
 
-    /**
-     * Helper method to map ResultSet to Student object
-     */
     private Student mapResultSetToStudent(ResultSet rs) throws SQLException {
         Student student = new Student();
         
-        // Set properties from ResultSet
         student.setId(rs.getInt(ID));
         student.setUserName(rs.getString(USERNAME));
         student.setFullName(rs.getString(FULLNAME));
@@ -186,19 +168,14 @@ public class StudentProfileDAO {
         return student;
     }
 
-    /**
-     * Updates only specific fields (partial update)
-     */
     public boolean updatePartialProfile(String studentId, 
                                         String fieldName, 
                                         String fieldValue) throws SQLException {
-        // Validate input
         if (studentId == null || studentId.trim().isEmpty() || 
             fieldName == null || fieldName.trim().isEmpty()) {
             return false;
         }
 
-        // Determine which table to update based on field name
         String sql;
         if (fieldName.equalsIgnoreCase("FULLNAME") || 
             fieldName.equalsIgnoreCase("USERPHONENUM") || 
@@ -222,9 +199,6 @@ public class StudentProfileDAO {
         }
     }
 
-    /**
-     * Checks if student exists
-     */
     public boolean studentExists(String studentId) throws SQLException {
         String sql = "SELECT COUNT(*) FROM STUDENT WHERE STUDENTID = ?";
         
@@ -242,27 +216,17 @@ public class StudentProfileDAO {
         return false;
     }
 
-    /**
-     * Validates email format (basic)
-     */
     private boolean isValidEmail(String email) {
         if (email == null) return false;
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         return email.matches(emailRegex);
     }
 
-    /**
-     * Sanitizes input strings
-     */
     private String safe(String s) {
         if (s == null) return "";
-        // Trim and remove extra whitespace
         return s.trim().replaceAll("\\s+", " ");
     }
 
-    /**
-     * Gets student ID by username (if needed)
-     */
     public String getStudentIdByUsername(String username) throws SQLException {
         String sql = "SELECT s.STUDENTID FROM STUDENT s " +
                      "JOIN USERS u ON s.ID = u.ID WHERE u.USERNAME = ?";

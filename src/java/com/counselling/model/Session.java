@@ -10,7 +10,6 @@ public class Session {
     private int counselorID;
     private int studentID;         
     
-    // Constructors
     public Session() {}
     
     public Session(int sessionID, Timestamp startTime, Timestamp endTime, 
@@ -22,7 +21,6 @@ public class Session {
         this.counselorID = counselorID;
     }
     
-    // Getters and Setters
     public int getSessionID() {
         return sessionID;
     }

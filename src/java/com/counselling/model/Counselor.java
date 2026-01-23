@@ -4,7 +4,6 @@ public class Counselor extends User {
     private String counselorID;
     private String roomNo;
     
-    // Constructors
     public Counselor() {
         super();
     }
@@ -23,7 +22,6 @@ public class Counselor extends User {
     public String getRoomNo() { return roomNo; }
     public void setRoomNo(String roomNo) { this.roomNo = roomNo; }
     
-    // TAMBAH ni - untuk fix error setId(String)
     public void setId(String id) {
         try {
             this.setID(Integer.parseInt(id));

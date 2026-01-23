@@ -30,18 +30,15 @@ public class StudentProfileServlet extends HttpServlet {
 
         Student sessionStudent = (Student) obj;
 
-        // studentId paling stabil: Student.getStudentID(), kalau null fallback username
         String studentId = sessionStudent.getStudentID();
         if (studentId == null || studentId.trim().isEmpty()) {
             studentId = sessionStudent.getUserName();
         }
 
         try {
-            // fetch data terbaru dari DB
             Student fresh = dao.getStudentByStudentId(studentId);
 
             if (fresh != null) {
-                // update balik session supaya JSP guna data terbaru
                 session.setAttribute("user", fresh);
             }
 
@@ -73,12 +70,10 @@ public class StudentProfileServlet extends HttpServlet {
 
         String studentId = request.getParameter("studentId");
         if (studentId == null || studentId.trim().isEmpty()) {
-            // fallback
             studentId = sessionStudent.getStudentID();
             if (studentId == null || studentId.trim().isEmpty()) studentId = sessionStudent.getUserName();
         }
 
-        // editable fields
         String fullName = request.getParameter("fullName");
         String userPhoneNum = request.getParameter("userPhoneNum");
         String userEmail = request.getParameter("userEmail");
@@ -89,7 +84,6 @@ public class StudentProfileServlet extends HttpServlet {
             boolean ok = dao.updateStudentProfile(studentId, fullName, userPhoneNum, userEmail, faculty, program);
 
             if (ok) {
-                // refresh session data
                 Student fresh = dao.getStudentByStudentId(studentId);
                 if (fresh != null) session.setAttribute("user", fresh);
 

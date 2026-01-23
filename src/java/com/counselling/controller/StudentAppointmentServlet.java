@@ -80,7 +80,6 @@ public class StudentAppointmentServlet extends HttpServlet {
             Student student = getStudentFromSession(session);
             Connection conn = DBConnection.getConnection();
             AppointmentDAO appointmentDAO = new AppointmentDAO(conn);
-            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
             List<AppointmentView> appointments = appointmentDAO.getUpcomingAppointmentsForStudent(student.getId());
             request.setAttribute("appointments", appointments);
             request.getRequestDispatcher("manageAppointmentStudent.jsp").forward(request, response);
@@ -98,9 +97,7 @@ public class StudentAppointmentServlet extends HttpServlet {
             String search = request.getParameter("q");
             Connection conn = DBConnection.getConnection();
             AppointmentDAO appointmentDAO = new AppointmentDAO(conn);
-            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
             List<AppointmentView> history = appointmentDAO.getAllAppointmentsForStudent(student.getId(), search);
-            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
             AppointmentStats stats = appointmentDAO.getAppointmentStatsForStudent(student.getId());
             request.setAttribute("history", history);
             request.setAttribute("stats", stats);
@@ -125,9 +122,7 @@ public class StudentAppointmentServlet extends HttpServlet {
         }
 
         try {
-            // FIXED: Constructor tanpa parameter
             SessionDAO sessionDAO = new SessionDAO();
-            // FIXED: Gunakan method baru yang tak perlukan counselorID
             List<Session> sessions = sessionDAO.getSessionsByDate(date);
             
             request.setAttribute("selectedDate", date);
@@ -166,7 +161,6 @@ public class StudentAppointmentServlet extends HttpServlet {
             int studentInternalID = Integer.parseInt(studentInternalIDStr);
             int sessionID = Integer.parseInt(sessionIDStr);
 
-            // FIXED: Constructor tanpa parameter
             SessionDAO sessionDAO = new SessionDAO();
             Session selectedSession = sessionDAO.getSessionById(sessionID);
 
@@ -176,14 +170,12 @@ public class StudentAppointmentServlet extends HttpServlet {
                 return;
             }
 
-            // Get counselor ID from the session
             int counselorInternalID = selectedSession.getCounselorID();
             
             System.out.println("DEBUG StudentAppointmentController: studentInternalID=" + studentInternalID);
             System.out.println("DEBUG StudentAppointmentController: sessionID=" + sessionID);
             System.out.println("DEBUG StudentAppointmentController: counselorInternalID from session=" + counselorInternalID);
             
-            // FIXED: Gunakan method yang sudah ditambah
             if (counselorInternalID == 0) {
                 counselorInternalID = sessionDAO.getDefaultCounselorID();
                 System.out.println("DEBUG StudentAppointmentController: Using default counselorID=" + counselorInternalID);
@@ -195,7 +187,6 @@ public class StudentAppointmentServlet extends HttpServlet {
                 return;
             }
 
-            // Create appointment
             Appointment appointment = new Appointment();
             appointment.setStudentInternalID(studentInternalID);
             appointment.setSessionID(sessionID);
@@ -209,7 +200,6 @@ public class StudentAppointmentServlet extends HttpServlet {
             boolean success = appointmentDAO.createAppointment(appointment);
 
             if (success) {
-                // Update session status to unavailable
                 sessionDAO.updateSessionStatus(sessionID, "unavailable");
 
                 request.setAttribute("successMessage", "Your appointment has been successfully booked! You will receive confirmation from your counselor soon.");
@@ -245,10 +235,8 @@ public class StudentAppointmentServlet extends HttpServlet {
 
             Connection conn = DBConnection.getConnection();
             AppointmentDAO appointmentDAO = new AppointmentDAO(conn);
-            // FIXED: Constructor tanpa parameter
             SessionDAO sessionDAO = new SessionDAO();
 
-            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
             boolean success = appointmentDAO.cancelAppointment(appointmentID, student.getId(), sessionID, sessionDAO);
             if (success) {
                 request.setAttribute("successMessage", "Appointment cancelled successfully.");
@@ -272,10 +260,8 @@ public class StudentAppointmentServlet extends HttpServlet {
 
             Connection conn = DBConnection.getConnection();
             AppointmentDAO appointmentDAO = new AppointmentDAO(conn);
-            // FIXED: Constructor tanpa parameter
             SessionDAO sessionDAO = new SessionDAO();
 
-            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
             boolean success = appointmentDAO.rescheduleAppointment(appointmentID, student.getId(), oldSessionID, newSessionID, sessionDAO);
             if (success) {
                 request.setAttribute("successMessage", "Appointment rescheduled.");
@@ -297,10 +283,8 @@ public class StudentAppointmentServlet extends HttpServlet {
 
             Connection conn = DBConnection.getConnection();
             AppointmentDAO appointmentDAO = new AppointmentDAO(conn);
-            // FIXED: Constructor tanpa parameter
             SessionDAO sessionDAO = new SessionDAO();
 
-            // FIXED: Gunakan getId() bukan getStudentIDAsInt()
             boolean success = appointmentDAO.deleteAppointment(sessionID, student.getId(), sessionDAO);
             if (success) {
                 request.setAttribute("successMessage", "Appointment deleted.");
@@ -314,7 +298,6 @@ public class StudentAppointmentServlet extends HttpServlet {
         showHistory(request, response, session);
     }
 
-    // JSON endpoint for available sessions on a given date
     private void sendAvailableSessionsJson(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String date = request.getParameter("date");
         response.setContentType("application/json");
@@ -323,9 +306,7 @@ public class StudentAppointmentServlet extends HttpServlet {
                 out.write("[]");
                 return;
             }
-            // FIXED: Constructor tanpa parameter
             SessionDAO SessionDAO = new SessionDAO();
-            // FIXED: Gunakan method baru yang tak perlukan counselorID
             List<Session> sessions = SessionDAO.getSessionsByDate(date);
             StringBuilder sb = new StringBuilder();
             sb.append("[");

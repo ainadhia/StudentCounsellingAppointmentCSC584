@@ -10,23 +10,18 @@ import java.util.List;
 
 public class StudentDashboardDAO {
 
-    /**
-     * FIXED: Get counts using STUDENTID column properly
-     * counts[0]=upcoming, counts[1]=completed, counts[2]=pending
-     */
     public int[] getCounts(String studentId) {
         int[] counts = new int[]{0, 0, 0};
 
-        // FIXED: Query untuk ambil user ID dulu
         String getUserIdSql = "SELECT ID FROM USERS WHERE USERNAME = ? OR ID IN (SELECT ID FROM STUDENT WHERE STUDENTID = ?)";
         String countsSql =
-            "SELECT " +
-            "SUM(CASE WHEN APPOINTMENTSTATUS IN ('Pending', 'booked') AND s.STARTTIME >= CURRENT_TIMESTAMP THEN 1 ELSE 0 END) AS UPCOMING, " +
-            "SUM(CASE WHEN APPOINTMENTSTATUS = 'complete' THEN 1 ELSE 0 END) AS COMPLETED, " +
-            "SUM(CASE WHEN APPOINTMENTSTATUS = 'Pending' THEN 1 ELSE 0 END) AS PENDING " +
-            "FROM APPOINTMENT a " +
-            "JOIN SESSION s ON a.SESSIONID = s.SESSIONID " +
-            "WHERE a.STUDENTID = ?";
+                            "SELECT " +
+                            "SUM(CASE WHEN APPOINTMENTSTATUS IN ('Pending', 'booked') AND s.STARTTIME >= CURRENT_TIMESTAMP THEN 1 ELSE 0 END) AS UPCOMING, " +
+                            "SUM(CASE WHEN APPOINTMENTSTATUS = 'complete' THEN 1 ELSE 0 END) AS COMPLETED, " +
+                            "SUM(CASE WHEN APPOINTMENTSTATUS = 'Pending' THEN 1 ELSE 0 END) AS PENDING " +
+                            "FROM APPOINTMENT a " +
+                            "JOIN SESSION s ON a.SESSIONID = s.SESSIONID " +
+                            "WHERE a.STUDENTID = ?";
 
         try (Connection conn = DBConnection.createConnection();
              PreparedStatement ps1 = conn.prepareStatement(getUserIdSql)) {
@@ -38,7 +33,6 @@ public class StudentDashboardDAO {
                 if (rs1.next()) {
                     int userId = rs1.getInt("ID");
                     
-                    // Now get counts using the user ID
                     try (PreparedStatement ps2 = conn.prepareStatement(countsSql)) {
                         ps2.setInt(1, userId);
                         
@@ -69,15 +63,15 @@ public class StudentDashboardDAO {
         
         String sql =
         "SELECT a.BOOKEDDATE, a.DESCRIPTION, a.APPOINTMENTSTATUS, " +
-        "       s.STARTTIME, " +  // Get raw Timestamp
-    "       s.ENDTIME, " +    // Get raw Timestamp
-    "       c.COUNSELORID, c.ROOMNO " +
-    "FROM APPOINTMENT a " +
-    "LEFT JOIN SESSION s ON a.SESSIONID = s.SESSIONID " +
-    "LEFT JOIN COUNSELOR c ON a.COUNSELORID = c.ID " +
-    "WHERE a.STUDENTID = ? " +
-    "AND UPPER(a.APPOINTMENTSTATUS) = 'COMPLETE' " + 
-    "ORDER BY a.BOOKEDDATE DESC";
+        "       s.STARTTIME, " +  
+        "       s.ENDTIME, " +    
+        "       c.COUNSELORID, c.ROOMNO " +
+        "FROM APPOINTMENT a " +
+        "LEFT JOIN SESSION s ON a.SESSIONID = s.SESSIONID " +
+        "LEFT JOIN COUNSELOR c ON a.COUNSELORID = c.ID " +
+        "WHERE a.STUDENTID = ? " +
+        "AND UPPER(a.APPOINTMENTSTATUS) = 'COMPLETE' " + 
+        "ORDER BY a.BOOKEDDATE DESC";
 
 
         try (Connection conn = DBConnection.createConnection();
@@ -90,46 +84,43 @@ public class StudentDashboardDAO {
                 if (rs1.next()) {
                     int userId = rs1.getInt("ID");
                     
-                    // Now get sessions using the user ID
                     try (PreparedStatement ps2 = conn.prepareStatement(sql)) {
                         ps2.setInt(1, userId);
                         
                         try (ResultSet rs2 = ps2.executeQuery()) {
                             int count = 0;
                             while (rs2.next() && count < limit) {
-    RecentSession r = new RecentSession();
+                            RecentSession r = new RecentSession();
 
-    Timestamp ts = rs2.getTimestamp("BOOKEDDATE");
-    if (ts != null) {
-        r.setBookedDate(new java.util.Date(ts.getTime()));
-    }
+                            Timestamp ts = rs2.getTimestamp("BOOKEDDATE");
+                            if (ts != null) {
+                                r.setBookedDate(new java.util.Date(ts.getTime()));
+                            }
 
-    r.setDescription(rs2.getString("DESCRIPTION"));
-    r.setStatus(rs2.getString("APPOINTMENTSTATUS"));
+                            r.setDescription(rs2.getString("DESCRIPTION"));
+                            r.setStatus(rs2.getString("APPOINTMENTSTATUS"));
 
-    // --- NEW DATE FORMATTING LOGIC ---
-    SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+                            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
 
-    Timestamp startTs = rs2.getTimestamp("STARTTIME");
-    if (startTs != null) {
-        r.setStartTime(timeFormat.format(startTs));
-    } else {
-        r.setStartTime("-");
-    }
+                            Timestamp startTs = rs2.getTimestamp("STARTTIME");
+                            if (startTs != null) {
+                                r.setStartTime(timeFormat.format(startTs));
+                            } else {
+                                r.setStartTime("-");
+                            }
 
-    Timestamp endTs = rs2.getTimestamp("ENDTIME");
-    if (endTs != null) {
-        r.setEndTime(timeFormat.format(endTs));
-    } else {
-        r.setEndTime("-");
-    }
-    // ---------------------------------
+                            Timestamp endTs = rs2.getTimestamp("ENDTIME");
+                            if (endTs != null) {
+                                r.setEndTime(timeFormat.format(endTs));
+                            } else {
+                                r.setEndTime("-");
+                            }
 
-    r.setCounselorId(rs2.getString("COUNSELORID"));
-    r.setRoomNo(rs2.getString("ROOMNO"));
+                            r.setCounselorId(rs2.getString("COUNSELORID"));
+                            r.setRoomNo(rs2.getString("ROOMNO"));
 
-    list.add(r);
-    count++;
+                            list.add(r);
+                            count++;
 
                             }
                         }
@@ -140,7 +131,6 @@ public class StudentDashboardDAO {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return list;
     }
 }

@@ -12,20 +12,14 @@ public class SessionDAO {
     private Connection connection;
     private boolean useExternalConnection;
     
-    // =================== CONSTRUCTORS ===================
-    
-    // Constructor 1: With external connection
     public SessionDAO(Connection connection) {
         this.connection = connection;
         this.useExternalConnection = true;
     }
     
-    // Constructor 2: Without parameter - uses DBConnection.createConnection()
     public SessionDAO() {
         this.useExternalConnection = false;
     }
-    
-    // =================== HELPER METHODS ===================
     
     private Connection getConnection() throws SQLException {
         if (useExternalConnection && connection != null) {
@@ -34,8 +28,6 @@ public class SessionDAO {
             return DBConnection.createConnection();
         }
     }
-    
-    // =================== SESSION MANAGEMENT METHODS ===================
     
     public int getDefaultCounselorID() throws SQLException {
         String sql = "SELECT ID FROM USERS WHERE userRole = 'counselor' FETCH FIRST 1 ROWS ONLY";
@@ -46,33 +38,28 @@ public class SessionDAO {
                 return rs.getInt("ID");
             }
         }
-        return 1; // Default counselor ID jika tak jumpa
+        return 1; 
     }
     
-    // Overloaded method untuk servlet yang tak perlukan counselorID
     public List<Session> getSessionsByDate(String dateStr) throws SQLException {
         int defaultCounselorID = getDefaultCounselorID();
         return getSessionsByDate(defaultCounselorID, dateStr);
     }
     
-    // Method utama dengan 2 parameters
     public List<Session> getSessionsByDate(int counselorID, String dateStr) throws SQLException {
         System.out.println("Getting sessions for counselor " + counselorID + " on " + dateStr);
         
         autoMarkPastSessionsUnavailable(counselorID, dateStr);
         List<Session> sessions = new ArrayList<>();
         
-        // Check which table/schema to use
-        String tableName = "SESSION"; // Default
-        String schemaPrefix = ""; // Default empty
+        String tableName = "SESSION"; 
+        String schemaPrefix = ""; 
         
-        // Try to detect database type
         try (Connection conn = getConnection()) {
             DatabaseMetaData meta = conn.getMetaData();
             String dbName = meta.getDatabaseProductName();
             
             if (dbName.contains("Apache Derby") || dbName.contains("Derby")) {
-                // For Derby database with APP schema
                 tableName = "APP.SESSION";
                 schemaPrefix = "APP.";
             }
@@ -105,15 +92,14 @@ public class SessionDAO {
         return sessions;
     }
     
-    // Alternative method with quoted column names (for specific database requirements)
     public List<Session> getSessionsByDateQuoted(int counselorID, String dateStr) throws SQLException {
         List<Session> sessions = new ArrayList<>();
 
         String sql = "SELECT s.\"SESSIONID\", s.\"STARTTIME\", s.\"ENDTIME\", s.\"SESSIONSTATUS\", s.\"COUNSELORID\" " +
-            "FROM APP.SESSION s " +
-            "WHERE s.\"COUNSELORID\" = ? " +
-            "AND CAST(s.\"STARTTIME\" AS DATE) = CAST(? AS DATE) " +
-            "ORDER BY s.\"STARTTIME\"";
+                    "FROM APP.SESSION s " +
+                    "WHERE s.\"COUNSELORID\" = ? " +
+                    "AND CAST(s.\"STARTTIME\" AS DATE) = CAST(? AS DATE) " +
+                    "ORDER BY s.\"STARTTIME\"";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -206,7 +192,6 @@ public class SessionDAO {
         }
     }
     
-    // Alternative generate method for specific database
     public void generateDailySlotsAlt(int counselorID, String dateStr) throws SQLException {
         List<Session> existing = getSessionsByDateQuoted(counselorID, dateStr);
         
@@ -292,7 +277,6 @@ public class SessionDAO {
         return false;
     }
     
-    // Alternative overlap check method
     public boolean hasTimeOverlapAlt(int counselorID, String dateStr, String startTimeStr, String endTimeStr) throws SQLException {
         Timestamp newStart = Timestamp.valueOf(dateStr + " " + (startTimeStr.length() == 5 ? startTimeStr + ":00" : startTimeStr));
         Timestamp newEnd = Timestamp.valueOf(dateStr + " " + (endTimeStr.length() == 5 ? endTimeStr + ":00" : endTimeStr));
@@ -454,7 +438,6 @@ public class SessionDAO {
         return sessions;
     }
     
-    // Alternative method for available sessions
     public List<Session> getAvailableSessionsAlt(int counselorID, String dateStr) throws SQLException {
         List<Session> sessions = new ArrayList<>();
         String sql = "SELECT \"SESSIONID\", \"STARTTIME\", \"ENDTIME\", \"SESSIONSTATUS\", \"COUNSELORID\" FROM APP.SESSION " +
@@ -494,8 +477,6 @@ public class SessionDAO {
         }
         return sessions;
     }
-    
-    // =================== CLOSE METHOD (for external connections) ===================
     
     public void close() throws SQLException {
         if (useExternalConnection && connection != null && !connection.isClosed()) {

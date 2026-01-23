@@ -20,7 +20,7 @@ public class LoginServlet extends HttpServlet {
         
         String roleID = request.getParameter("roleID");
         String password = request.getParameter("password");
-        String role = request.getParameter("role"); // "S" atau "C"
+        String role = request.getParameter("role"); 
         
         UserDAO dao = new UserDAO();
         
@@ -28,7 +28,6 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             
             if ("S".equals(role)) {
-                // Login Student
                 Student student = dao.authenticate(roleID, password, role);
                 if (student != null) {
                     session.setAttribute("user", student);
@@ -41,7 +40,6 @@ public class LoginServlet extends HttpServlet {
                 }
                 
             } else if ("C".equals(role)) {
-                // Login Counselor
                 Counselor counselor = dao.authenticateCounselor(roleID, password);
                 if (counselor != null) {
                     session.setAttribute("user", counselor);
@@ -54,7 +52,6 @@ public class LoginServlet extends HttpServlet {
                 }
                 
             } else {
-                // Role tidak dikenali
                 request.setAttribute("errorMessage", "Role not recognized.");
                 request.getRequestDispatcher("login.jsp").forward(request, response);
             }

@@ -20,7 +20,6 @@ public class AppointmentController extends HttpServlet {
         
         String action = request.getParameter("action");
         
-        // Get date parameter from request
         String selectedDate = request.getParameter("date");
         if (selectedDate == null || selectedDate.isEmpty()) {
             selectedDate = LocalDate.now().plusDays(1).toString();
@@ -41,11 +40,9 @@ public class AppointmentController extends HttpServlet {
         
         String studentID = request.getParameter("studentID");
         
-        // Use StudentListDAO (corrected)
         StudentListDAO studentDAO = new StudentListDAO();
 
         try {
-            // Assuming StudentListDAO has getStudentById method
             Student s = studentDAO.getStudentById(studentID);
             if (s == null) {
                 request.setAttribute("errorMessage", "Student ID not found in the system!");
@@ -55,21 +52,16 @@ public class AppointmentController extends HttpServlet {
 
             request.setAttribute("foundStudent", s);
 
-            // Get counselor from session
             HttpSession session = request.getSession();
             Counselor counselor = (Counselor) session.getAttribute("user");
             
             if (counselor != null) {
-                // Use counselor.getID() directly (it returns int)
                 int counselorID = counselor.getID();
                 
-                // Use SessionDAO with no-arg constructor
                 SessionDAO sessDAO = new SessionDAO();
                 
-                // Convert date format
                 String dbDateStr = convertToDatabaseFormat(selectedDate);
         
-                // Fetch sessions for this counselor and date
                 List<Session> allSessions = sessDAO.getSessionsByDate(counselorID, dbDateStr);
                 request.setAttribute("allSessions", allSessions);
             } else {
@@ -122,13 +114,11 @@ public class AppointmentController extends HttpServlet {
             conn = DBConnection.getConnection();
             conn.setAutoCommit(false);
             
-            // Use AppointmentDAO with connection
             AppointmentDAO appDAO = new AppointmentDAO(conn);
             SessionDAO sessDAO = new SessionDAO();
             
             int sID = Integer.parseInt(sessionIDStr);
 
-            // Get counselor from session
             HttpSession session = request.getSession();
             Counselor counselor = (Counselor) session.getAttribute("user");
             if (counselor == null) {
@@ -140,24 +130,20 @@ public class AppointmentController extends HttpServlet {
             Appointment app = new Appointment();
             app.setStudentInternalID(Integer.parseInt(studentInternalID));
             
-            // Use counselor.getID() directly
             app.setCounselorInternalID(counselor.getID());
             
             app.setSessionID(sID);
             app.setDescription(description != null ? description : "");
             app.setAppointmentStatus("Pending");
             
-            // Create appointment
             boolean appointmentCreated = appDAO.createAppointment(app);
             
-            // Update session status
             boolean sessionUpdated = sessDAO.updateSessionStatus(sID, "unavailable");
             
             if (appointmentCreated && sessionUpdated) {
                 conn.commit();
                 request.setAttribute("successMessage", "Booking successful! Your appointment has been created.");
                 
-                // Repopulate data using StudentListDAO
                 StudentListDAO studentDAO = new StudentListDAO();
                 Student student = studentDAO.getStudentById(studentID);
                 if (student != null) {

@@ -24,7 +24,6 @@ public class StudentDashboardServlet extends HttpServlet {
             return;
         }
 
-        // user login (Student)
         Object obj = session.getAttribute("user");
         if (!(obj instanceof Student)) {
             response.sendRedirect(request.getContextPath() + "/login.jsp");
@@ -33,15 +32,13 @@ public class StudentDashboardServlet extends HttpServlet {
 
         Student student = (Student) obj;
 
-        // studentId ambil dari Student object
         String studentId = student.getStudentID();
         if (studentId == null || studentId.trim().isEmpty()) {
-            studentId = student.getUserName(); // fallback
+            studentId = student.getUserName();
         }
 
         StudentDashboardDAO dao = new StudentDashboardDAO();
 
-        // ✅ ambil counts (upcoming/completed/pending)
         int upcoming = 0, completed = 0, Pending = 0;
         int[] counts = dao.getCounts(studentId);
         if (counts != null && counts.length >= 3) {
@@ -50,10 +47,8 @@ public class StudentDashboardServlet extends HttpServlet {
             Pending = counts[2];
         }
 
-        // ✅ recent sessions
         List<RecentSession> recent = dao.getRecentSessions(studentId, 5);
 
-        // hantar ke JSP
         request.setAttribute("activeMenu", "dashboard");
         request.setAttribute("upcoming", upcoming);
         request.setAttribute("complete", completed);

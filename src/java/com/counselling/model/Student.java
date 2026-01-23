@@ -18,9 +18,8 @@ public class Student extends User {
         this.program = program;
     }
     
-    // ========== TAMBAH METHOD INI ==========
     public int getId() {
-        return getID();  // Get ID from parent User class
+        return getID(); 
     }
     
     public int getStudentIDAsInt() {
@@ -31,7 +30,6 @@ public class Student extends User {
         }
     }
     
-    // Getter & Setter 
     public String getStudentID() {
         return studentID;
     }

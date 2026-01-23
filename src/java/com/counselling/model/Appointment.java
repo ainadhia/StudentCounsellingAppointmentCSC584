@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.sql.Timestamp;
 
 public class Appointment {
-    // New naming (currently active)
     private int appointmentID;
     private int studentInternalID;
     private int counselorInternalID;
@@ -15,7 +14,6 @@ public class Appointment {
 
     public Appointment() {}
 
-    // NEW getters/setters
     public int getAppointmentID() { return appointmentID; }
     public void setAppointmentID(int appointmentID) { this.appointmentID = appointmentID; }
 
@@ -37,8 +35,6 @@ public class Appointment {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    // ========== COMPATIBILITY METHODS (untuk DAO lama) ==========
-    // Ni untuk support old code yang still guna nama lama
     public int getID() { return appointmentID; }
     public void setID(int id) { this.appointmentID = id; }
     

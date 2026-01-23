@@ -9,10 +9,8 @@ import java.util.List;
 
 public class StudentListDAO {
 
-    // 1. Method untuk senarai semua pelajar (DIPANGGIL OLEH StudentServlet)
     public List<ListStudent> getAllStudents() {
         List<ListStudent> studentList = new ArrayList<>();
-        // Query menggunakan schema APP seperti dalam database anda
         String sql = "SELECT s.STUDENTID, u.FULLNAME FROM APP.STUDENT s " +
                      "JOIN APP.USERS u ON s.ID = u.ID";
 
@@ -31,7 +29,6 @@ public class StudentListDAO {
         return studentList;
     }
 
-    // 2. Method untuk profil pelajar (DIPANGGIL OLEH ViewStudentServlet)
     public Student getStudentById(String studentID) {
         Student s = null;
         String sql = "SELECT s.ID, s.STUDENTID, u.FULLNAME, u.USEREMAIL, u.USERPHONENUM, s.FACULTY, s.PROGRAM " +

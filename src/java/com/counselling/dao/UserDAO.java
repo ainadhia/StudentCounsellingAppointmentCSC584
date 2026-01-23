@@ -43,7 +43,6 @@ public class UserDAO {
             conn = DBConnection.createConnection();
             conn.setAutoCommit(false);
 
-            // Insert into USERS table
             String sqlUser = "INSERT INTO USERS (USERNAME, FULLNAME, USEREMAIL, USERPASSWORD, USERROLE, USERPHONENUM) VALUES (?,?,?,?,?,?)";
             psUser = conn.prepareStatement(sqlUser, Statement.RETURN_GENERATED_KEYS);
             psUser.setString(1, s.getUserName());
@@ -54,12 +53,10 @@ public class UserDAO {
             psUser.setString(6, s.getUserPhoneNum());
             psUser.executeUpdate();
 
-            // Get generated ID
             rs = psUser.getGeneratedKeys();
             if (rs.next()) {
                 int userID = rs.getInt(1);
 
-                // Insert into STUDENT or COUNSELOR table based on role
                 if (s.getUserRole().equals("S")) {
                     String sqlStud = "INSERT INTO STUDENT (ID, STUDENTID, FACULTY, PROGRAM) VALUES (?,?,?,?)";
                     psS = conn.prepareStatement(sqlStud);
@@ -91,7 +88,6 @@ public class UserDAO {
             }
             throw e;
         } finally {
-            // Close resources
             if (rs != null) try { rs.close(); } catch (SQLException e) { e.printStackTrace(); }
             if (psS != null) try { psS.close(); } catch (SQLException e) { e.printStackTrace(); }
             if (psC != null) try { psC.close(); } catch (SQLException e) { e.printStackTrace(); }

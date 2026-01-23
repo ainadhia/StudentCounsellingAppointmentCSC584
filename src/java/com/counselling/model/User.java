@@ -1,16 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.counselling.model;
 
 import java.io.Serializable;
 
-/**
- *
- * @author Aina
- */
 public class User implements Serializable {
     private int ID;
     private String userName;
@@ -20,7 +11,6 @@ public class User implements Serializable {
     private String userRole; 
     private String userPhoneNum;
     
-    // Constructors
     public User() {}
     
     public User(int ID, String userName, String fullName, String userEmail, 
@@ -34,7 +24,6 @@ public class User implements Serializable {
         this.userPhoneNum = userPhoneNum;
     }
     
-    // Getters and Setters
     public int getID() { return ID; }
     public void setID(int ID) { this.ID = ID; }
     

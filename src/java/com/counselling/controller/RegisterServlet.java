@@ -28,35 +28,30 @@ public class RegisterServlet extends HttpServlet {
         boolean hasError = false;
 
         try {
-            // Validate email format
             if (!email.contains("@")) {
                 request.setAttribute("emailError", "true");
                 request.setAttribute("emailErrorMsg", "Email must contain @");
                 hasError = true;
             }
 
-            // Validate phone is numbers
             if (!phone.matches("\\d+")) {
                 request.setAttribute("phoneError", "true");
                 request.setAttribute("phoneErrorMsg", "Phone number must contain only numbers");
                 hasError = true;
             }
 
-            // Validate passwords match
             if (!password.equals(confirm)) {
                 request.setAttribute("passwordError", "true");
                 request.setAttribute("passwordErrorMsg", "Passwords do not match");
                 hasError = true;
             }
 
-            // Check username duplication
             if (dao.isUsernameTaken(username)) {
                 request.setAttribute("usernameError", "true");
                 request.setAttribute("usernameErrorMsg", "Username already taken by another user");
                 hasError = true;
             }
 
-            // Check ID duplication
             if (dao.isIDTaken(roleID, role)) {
                 request.setAttribute("studentIDError", "true");
                 request.setAttribute("studentIDErrorMsg", "ID Number already registered");
@@ -64,7 +59,6 @@ public class RegisterServlet extends HttpServlet {
             }
 
             if (hasError) {
-                // Keep form data visible
                 request.setAttribute("username", username);
                 request.setAttribute("email", email);
                 request.setAttribute("phone", phone);
@@ -77,7 +71,6 @@ public class RegisterServlet extends HttpServlet {
                 return;
             }
 
-            // Create student object
             Student s = new Student();
             s.setUserName(username);
             s.setFullName(request.getParameter("fullname"));
